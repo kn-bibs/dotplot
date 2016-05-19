@@ -15,11 +15,13 @@ class Dotplot(object):
         self.plot = self.plotter.plot(self.sequences)
 
     def draw(self, plot):
+        if not plot:
+            plot = self.plot
         self.drawer.draw(self, plot)
 
-if __name__ == "main":
+if __name__ == '__main__':
     kwargs = ArgumentParser(sys.argv)
     dotplot = Dotplot(**kwargs)
-    plot = dotplot.make_plot()
+    dotplot.make_plot()
     dotplot.draw()
 
