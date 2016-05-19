@@ -12,7 +12,7 @@ class Dotplot(object):
         self.drawer  = Drawer(drawer_args )
 
     def make_plot(self):
-        plot = self.plotter(self.sequences)
+        self.plot = self.plotter.plot(self.sequences)
 
     def draw(self, plot):
         self.drawer.draw(self, plot)
