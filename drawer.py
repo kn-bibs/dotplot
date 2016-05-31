@@ -14,6 +14,7 @@ class Drawer:
         self.dot_matrix = new_matrix
 
     def draw(self):
+
         drawing = ""
 
         for row in self.dot_matrix:
@@ -21,7 +22,7 @@ class Drawer:
             for element in row:
 
                 if element == 1:
-                    drawing = drawing + "."
+                    drawing = drawing + "x"
                 else:
                     drawing = drawing + " "
 
