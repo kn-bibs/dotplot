@@ -18,7 +18,7 @@ class Plotter(object):
         self.stringency = 2
         self.scores = {}
 
-    def plot(self, sequences):
+    def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.
 
         Args:
@@ -52,7 +52,7 @@ class Plotter(object):
                 else:
                     self.dotmatrix[row_index].append(0)
 
-    def get_dotmatrix(self):
+    def plot(self):
         return self.dotmatrix
 
     def get_score(self, first, second):
