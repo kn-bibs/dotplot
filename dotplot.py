@@ -7,7 +7,7 @@ from plotter import Plotter
 class Dotplot(object):
 
     def __init__(self,  sequences, plotter_args=None, drawer_args=None):
-        self.sequences = sequences
+        self.sequences = [Sequence.from_fasta_file(seq) for seq in sequences]
         self.plotter = Plotter(plotter_args)
         self.drawer = Drawer(drawer_args)
 
