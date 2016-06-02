@@ -1,5 +1,6 @@
 """Plotter creates the matrix that is later displayed."""
 
+
 class Plotter(object):
     """Creates dotmatrix.
 
@@ -12,7 +13,12 @@ class Plotter(object):
         """Inits Plotter with empty dotmatrix."""
         self.dotmatrix = []
 
-    def plot(self, sequences):
+        # temporary values
+        self.window_size = 3
+        self.stringency = 2
+        self.scores = {}
+
+    def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.
 
         Args:
@@ -36,7 +42,8 @@ class Plotter(object):
                 [[1, 0, 0], [0, 1, 0], [1, 0, 0]] is returned
 
         """
-        seq1, seq2 = sequences
+        seq1 = sequences[0].sequence
+        seq2 = sequences[1].sequence
 
         for row_index, vertical_letter in enumerate(seq1):
             self.dotmatrix.append([])
@@ -45,4 +52,11 @@ class Plotter(object):
                     self.dotmatrix[row_index].append(1)
                 else:
                     self.dotmatrix[row_index].append(0)
+
+    def plot(self):
         return self.dotmatrix
+
+    def get_score(self, first, second):
+        # Template for function that returns score of two compared symbols
+        # TODO create scoring matrix
+        return 1
