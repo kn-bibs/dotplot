@@ -56,7 +56,7 @@ class Sequence(object):
         Args:
             fastafile - file in fasta format opened for reading
         """
-        name = fastafile.next()
+        name = fastafile.readline()
         if not name.startswith('>'):
             raise TypeError("Not a FASTA file")
         name = name.lstrip('>')
