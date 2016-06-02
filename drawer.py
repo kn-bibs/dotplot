@@ -9,8 +9,8 @@ class Drawer(object):
         for row in dot_matrix:
             for element in row:
                 if element == 1:
-                    print("x")
+                    print('X', end='')
                 else:
-                    print(" ")
-            print("\n")
+                    print(' ', end='')
+            print('')
 
