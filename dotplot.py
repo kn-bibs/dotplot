@@ -15,7 +15,7 @@ class Dotplot(object):
     def make_plot(self):
         self.plot = self.plotter.plot(self.sequences)
 
-    def draw(self, plot):
+    def draw(self, plot=None):
         if not plot:
             plot = self.plot
         self.drawer.draw(self, plot)
