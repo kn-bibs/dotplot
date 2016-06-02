@@ -22,7 +22,7 @@ class Plotter(object):
         """Creates dotplot matrix for given sequences.
 
         Args:
-            sequences - (str, str): tuple of strings
+            sequences - (Sequence, Sequence): tuple of strings
                 representing sequences to analyse.
 
         Returns:
@@ -53,10 +53,47 @@ class Plotter(object):
                 else:
                     self.dotmatrix[row_index].append(0)
 
-    def plot(self):
+    def plot(self, sequences):
+        self.make_plot(sequences)
         return self.dotmatrix
 
     def get_score(self, first, second):
         # Template for function that returns score of two compared symbols
         # TODO create scoring matrix
-        return 1
+        if first == second:
+            return 1
+        return 0
+
+    def windows_matrix(self, sequences):
+        # chyba dziala, ale i tak trzeba to poprawic
+        seq1 = sequences[0].sequence
+        seq2 = sequences[1].sequence
+
+        scores = [[]]
+        current_score = 0
+
+        for i in range(self.window_size):
+            for j in range(self.window_size):
+                current_score += self.get_score(seq1[i], seq2[j])
+        if current_score > self.stringency:
+            scores[-1].append(1)
+        else:
+            scores[-1].append(0)
+
+        for row in range(len(seq1) - self.window_size):
+            for col in range(len(seq2) - self.window_size):
+                for i in range(self.window_size):
+                    current_score -= self.get_score(seq1[row+i], seq2[col])
+                    current_score += self.get_score(seq1[row+i],
+                                                    seq2[col + self.window_size])
+                if current_score > self.stringency:
+                    scores[-1].append(1)
+                else:
+                    scores[-1].append(0)
+            current_score = scores[-1][0]
+            for i in range(self.window_size):
+                current_score -= self.get_score(seq1[row], seq2[i])
+                current_score += self.get_score(seq1[row + self.window_size],
+                                                seq2[i])
+            scores.append([])
+        return scores[:-1]
