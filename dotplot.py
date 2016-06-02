@@ -2,6 +2,7 @@ import sys
 from argument_parser import ArgumentParser
 from drawer import Drawer
 from plotter import Plotter
+from sequence import Sequence
 
 
 class Dotplot(object):
