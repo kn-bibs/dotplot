@@ -19,14 +19,13 @@ class Sequence(object):
         self.sequence = sequence
 
     @classmethod
-    def from_fasta_file(cls, filename):
+    def from_fasta_file(cls, fastafile):
         """Reads .fasta file.
         Saves sequence and its name to attributes sequence and name.
 
         Args:
-            filename - string with name of the .fasta file
+            fastafile - fasta file open for reading.
         """
-        fastafile = open(filename, 'r')
         name = cls.read_name(fastafile)
         sequence = cls.read_sequence(fastafile)
         return cls(sequence, name)
