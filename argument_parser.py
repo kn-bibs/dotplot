@@ -13,6 +13,13 @@ class ArgumentParser(object):
 
     def __init__(self):
         self.parser = argparse.ArgumentParser()
+        # todo: plotter.window_size (od 1 (ew. do 1000 ale lepiej bez limitu))
+        # todo: plotter.stringency (od 1 do wielkości okna do kwadratu)
+        # todo: plotter.matrix (PAM250, BINARY) (użyć choice)
+
+        # todo: drawer.true_char  (jaki znak rysujemy tam, gdzie się zgadza)
+        # todo: drawer.false_char (jaki znak rysujemy tam, gdzie się nie zgadza)
+
         sequences = self.parser.add_argument_group('sequences')
         sequences.add_argument('file1', type=argparse.FileType(),
                                help='First input file in FASTA format')
