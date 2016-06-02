@@ -53,7 +53,8 @@ class Plotter(object):
                 else:
                     self.dotmatrix[row_index].append(0)
 
-    def plot(self):
+    def plot(self, sequences):
+        self.make_plot(sequences)
         return self.dotmatrix
 
     def get_score(self, first, second):
