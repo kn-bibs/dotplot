@@ -42,7 +42,8 @@ class Plotter(object):
                 [[1, 0, 0], [0, 1, 0], [1, 0, 0]] is returned
 
         """
-        seq1, seq2 = sequences
+        seq1 = sequences[0].sequence
+        seq2 = sequences[1].sequence
 
         for row_index, vertical_letter in enumerate(seq1):
             self.dotmatrix.append([])
