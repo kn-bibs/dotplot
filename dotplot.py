@@ -18,7 +18,7 @@ class Dotplot(object):
     def draw(self, plot=None):
         if not plot:
             plot = self.plot
-        self.drawer.draw(self, plot)
+        self.drawer.draw(plot)
 
 if __name__ == '__main__':
     args = ArgumentParser().parse(sys.argv)
