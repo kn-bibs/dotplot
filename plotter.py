@@ -92,7 +92,7 @@ class Plotter(object):
             current_score = scores[-1][0]
             for i in range(self.window_size):
                 current_score -= self.get_score(seq1[row], seq2[i])
-                current_score += self.get_score(seq1[row+self.window_size],
+                current_score += self.get_score(seq1[row + self.window_size],
                                                 seq2[i])
             scores.append([])
         return scores[:-1]
