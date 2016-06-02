@@ -1,7 +1,7 @@
 class Drawer(object):
     """Creates a Drawer object"""
 
-    def __init__(self):
+    def __init__(self, arguments):
         pass
 
 
