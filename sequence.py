@@ -2,24 +2,24 @@
 
 class Sequence(object):
     """Reads sequence from a fasta file.
-    
         Attributes:
             sequence: string with sequence
             name: string with sequence's name,
                 read from the first line.
     """
 
-    def __init__(self, filename):
+    def __init__(self, sequence, name):
         """Inits Sequence with empty strings as name and sequence.
 
         Args:
-            filename - string with name of the .fasta file
+            sequence - sequence (string)
+            name - sequences' name (string)
         """
-        self.name = ''
-        self.sequence = ''
-        self.read_fasta(filename)
+        self.name = name
+        self.sequence = sequence
 
-    def read_fasta(self, filename):
+    @classmethod
+    def from_fasta_file(cls, filename):
         """Reads .fasta file.
         Saves sequence and its name to attributes sequence and name.
 
@@ -27,10 +27,12 @@ class Sequence(object):
             filename - string with name of the .fasta file
         """
         fastafile = open(filename, 'r')
-        self.read_name(fastafile)
-        self.read_sequence(fastafile)
+        name = cls.read_name(fastafile)
+        sequence = cls.read_sequence(fastafile)
+        return cls(sequence, name)
 
-    def read_sequence(self, fastafile):
+    @staticmethod
+    def read_sequence(fastafile):
         """
         Reads sequence from fasta file
         and saves it to attribute sequence as string.
@@ -38,11 +40,13 @@ class Sequence(object):
         Args:
             fastafile - file in fasta format opened for reading
         """
-        self.sequence = ""
+        sequence = ''
         for line in fastafile:
-            self.sequence += line.strip()
+            sequence += line.strip()
+        return sequence
 
-    def read_name(self, fastafile):
+    @staticmethod
+    def read_name(fastafile):
         """
         Reads sequence's name from fasta file
         and saves it to attribute name as string.
@@ -57,5 +61,5 @@ class Sequence(object):
             raise TypeError("Not a FASTA file")
         name = name.lstrip('>')
         name = name.rstrip()
-        self.name = name
+        return name
 
