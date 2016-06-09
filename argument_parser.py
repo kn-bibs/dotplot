@@ -62,4 +62,7 @@ class ArgumentParser(object):
         Parse given arguments, skips first argument (assume that is script name)
         :type arguments: list
         """
-        return self.parser.parse_args(arguments[1:], self.nested_namespace)
+        args = self.parser.parse_args(arguments[1:], self.nested_namespace)
+        args.plotter = Nestedspace()
+        args.drawer = Nestedspace()
+        return args
