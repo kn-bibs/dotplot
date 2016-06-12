@@ -1,11 +1,18 @@
 class Drawer(object):
     """Creates a Drawer object"""
 
-    def __init__(self, arguments):
-        pass
+    def __init__(self, arguments=None):
+        """Creates a Drawer object that is using a given drawing method
 
+        TODO: write an accurate docstring
+        """
+        if arguments.mode is None:
+            self.draw = self.draw_ascii
+        else:
+            drawing_methods = {'unicode' : self.draw_unicode, 'ascii' : self.draw_ascii}
+            self.draw = drawing_methods[arguments.mode]
 
-    def draw_ASCII(self, dot_matrix):
+    def draw_ascii(self, dot_matrix):
         """Prints an ASCII representation of dotmatrix
 
         Args:
@@ -19,11 +26,11 @@ class Drawer(object):
                     print(' ', end='')
             print('')
 
-    def draw_Unicode(self, dot_matrix):
+    def draw_unicode(self, dot_matrix):
         """Prints an Unicode representation of dotmatrix
 
-                Args:
-                    dot_matrix - (list): list of lists representing a dotplot matrix
+        Args:
+            dot_matrix - (list): list of lists representing a dotplot matrix
         """
         #left upper corner
         print(u'\u2554', end='')
