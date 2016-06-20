@@ -1,4 +1,5 @@
 # Dotplot
+[![Code Climate](https://codeclimate.com/github/kn-bibs/dotplot/badges/gpa.svg)](https://codeclimate.com/github/kn-bibs/dotplot) [![Test Coverage](https://codeclimate.com/github/kn-bibs/dotplot/badges/coverage.svg)](https://codeclimate.com/github/kn-bibs/dotplot/coverage)
 
 
 ## Idea
