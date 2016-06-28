@@ -8,17 +8,17 @@ from sequence import Sequence
 class Dotplot(object):
 
     def __init__(self,  sequences, plotter_args=None, drawer_args=None):
-        self.sequences = sequences
+        self.sequences = [Sequence.from_fasta_file(seq) for seq in sequences]
         self.plotter = Plotter(plotter_args)
         self.drawer = Drawer(drawer_args)
 
     def make_plot(self):
         self.plot = self.plotter.plot(self.sequences)
 
-    def draw(self, plot):
+    def draw(self, plot=None):
         if not plot:
             plot = self.plot
-        self.drawer.draw(self, plot)
+        self.drawer.draw(plot)
 
 if __name__ == '__main__':
     args = ArgumentParser().parse(sys.argv)
