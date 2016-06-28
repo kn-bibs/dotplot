@@ -1,4 +1,7 @@
-"""Sequence reads sequence from a fasta file."""
+"""Sequence reads sequence from a fasta file or downloads it from Ensembl."""
+
+import requests
+import sys
 
 class Sequence(object):
     """Reads sequence from a fasta file.
@@ -62,3 +65,19 @@ class Sequence(object):
         name = name.rstrip()
         return name
 
+    @classmethod
+    def from_ensembl(cls, ensembl_id):
+
+        server = "http://rest.ensembl.org"
+        ext = "/sequence/id/" + ensembl_id + "?"
+
+        r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
+
+        if not r.ok:
+            r.raise_for_status()
+            sys.exit()
+
+        result = r.text.split('\n')
+        name = result[0].strip('>')
+        sequence = ''.join(result[1:])
+        return cls(sequence, name)
