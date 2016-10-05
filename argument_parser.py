@@ -1,12 +1,10 @@
-# coding=utf-8
 """argument parser
-
 Parses arguments
 """
 import argparse
 
 
-class Nestedspace(argparse.Namespace):
+class NestedNamespace(argparse.Namespace):
     """
     Helps with nesting namespaces creating foo when dest=foo.bar
     """
@@ -14,7 +12,7 @@ class Nestedspace(argparse.Namespace):
     def __setattr__(self, name, value):
         if '.' in name:
             group, name = name.split('.', 1)
-            nested_namespace = getattr(self, group, Nestedspace())
+            nested_namespace = getattr(self, group, NestedNamespace())
             setattr(nested_namespace, name, value)
             self.__dict__[group] = nested_namespace
         else:
@@ -25,7 +23,7 @@ class ArgumentParser(object):
     """
     Parse arguments
     """
-    nested_namespace = Nestedspace()
+    nested_namespace = NestedNamespace()
 
     def __init__(self):
         """
@@ -50,12 +48,12 @@ class ArgumentParser(object):
                                     type=argparse.FileType(),
                                     help='Second input file in FASTA format')
 
-        # todo: plotter.window_size (od 1 (ew. do 1000 ale lepiej bez limitu))
-        # todo: plotter.stringency (od 1 do wielkości okna do kwadratu)
-        # todo: plotter.matrix (PAM250, BINARY) (użyć choice)
+        # todo: plotter.window_size (from 1 (possibly to 1000, but better without upper limitation))
+        # todo: plotter.stringency (from 1 to squared window_size)
+        # todo: plotter.matrix (PAM250, BINARY) (use choice)
 
-        # todo: drawer.true_char (jaki znak rysujemy tam, gdzie się zgadza)
-        # todo: drawer.false_char(jaki znak rysujemy tam, gdzie się nie zgadza)
+        # todo: drawer.true_char (what char when match)
+        # todo: drawer.false_char(what char when mismatch)
 
     def parse(self, arguments):
         """
@@ -63,6 +61,6 @@ class ArgumentParser(object):
         :type arguments: list
         """
         args = self.parser.parse_args(arguments[1:], self.nested_namespace)
-        args.plotter = Nestedspace()
-        args.drawer = Nestedspace()
+        args.plotter = NestedNamespace()
+        args.drawer = NestedNamespace()
         return args
