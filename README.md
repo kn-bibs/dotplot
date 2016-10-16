@@ -8,17 +8,21 @@ Dotplot is a plot used mainly in biology for graphical visualisations of sequenc
 
 ## Why to create a new package?
 
-There are many programs that attempt to create dotplots already. Unfortunately most of these programs was created long time ago and written in old versions of Java. To allow new generations of bioinformaticians to generate dotplots easily we are developing this Python3 package.
+There are many programs that attempt to create dotplots already. Unfortunately most of these programs was created long time ago and written in old versions of Java. This Python3 package will allow new generations of bioinformaticians to generate dotplots much easier.
 
 ## Installation & usage
 ``git clone https://github.com/kn-bibs/dotplot``
 
 
-###Basic usage
+### Basic usage
 
 ``cd dotplot``
 
 ``python3 dotplot.py --file1 seq1.fasta --file2 seq2.fasta``
+
+#### Getting help
+
+To access list of available options run command above with added option `-h`.
 
 ## What will it do?
 In the future our application will be able to read a wide range of input formats, and users will be able to parametrize alignment process and output format to their liking. 
