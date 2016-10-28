@@ -45,7 +45,11 @@ class Sequence(object):
         """
         sequence = ''
         for line in fastafile:
-            sequence += line.strip()
+            if line[0].isalpha():
+                sequence += line.strip()
+            else:
+                print("More than one sequence found in the file: " + str(fastafile.name))
+                break
         return sequence
 
     @staticmethod
@@ -77,11 +81,18 @@ class Sequence(object):
         ext = "/sequence/id/" + ensembl_id + "?"
         address = server + ext
 
-        ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
+        ask = False
+        i = 0
+        while i < 3 and not ask:
+            ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
+            i += 1
+            if not ask:
+                print("Downloading failed. Trying again.")
+        if not ask:
+            sys.exit("After 3 attempts sequence downloading failed.")
 
-        if not ask.ok:
-            ask.raise_for_status()
-            sys.exit()
+        if ask:
+            print("Sequence downloaded successfully.")
 
         result = ask.text.split('\n')
         name = result[0].strip('>')
