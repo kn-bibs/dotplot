@@ -80,11 +80,24 @@ class Sequence(object):
         server = "http://rest.ensembl.org"
         ext = "/sequence/id/" + ensembl_id + "?"
         address = server + ext
+        sequence, name = cls.try_to_download(address)
+        return cls(sequence, name)
+
+    @classmethod
+    def from_uniprot(cls, uniprot_id):
+
+        server = "http://www.uniprot.org/uniprot/"
+        address = server + uniprot_id + ".fasta"
+        sequence, name = cls.try_to_download(address)
+        return cls(sequence, name)
+
+    @staticmethod
+    def try_to_download(address):
 
         ask = False
         i = 0
         while i < 3 and not ask:
-            ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
+            ask = requests.get(address)
             i += 1
             if not ask:
                 print("Downloading failed. Trying again.")
@@ -97,4 +110,4 @@ class Sequence(object):
         result = ask.text.split('\n')
         name = result[0].strip('>')
         sequence = ''.join(result[1:])
-        return cls(sequence, name)
+        return sequence, name
