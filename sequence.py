@@ -97,7 +97,7 @@ class Sequence(object):
         ask = False
         i = 0
         while i < 3 and not ask:
-            ask = requests.get(address)
+            ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
             i += 1
             if not ask:
                 print("Downloading failed. Trying again.")
