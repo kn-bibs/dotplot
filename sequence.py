@@ -91,6 +91,16 @@ class Sequence(object):
         sequence, name = cls.try_to_download(address)
         return cls(sequence, name)
 
+    @classmethod
+    def from_ncbi(cls, ncbi_id):
+        base = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils'
+        end = '/efetch.fcgi?'
+        address = base + end + 'db=protein&id=' + ncbi_id + '&rettype=fasta'
+        response = cls.try_to_download(address)
+        name = response[1]
+        sequence = response[0]
+        return cls(sequence, name)
+
     @staticmethod
     def try_to_download(address):
 
