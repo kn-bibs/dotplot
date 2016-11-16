@@ -89,6 +89,6 @@ class ArgumentParser(object):
         if not (args.sequences.file1 and args.sequences.file2):
             # force mode to be GUI
             if not args.gui:
-                print('No input files detected - switching to GUI mode')
+                print('Not enough input files given - switching to GUI mode')
                 args.gui = True
         return args
