@@ -7,10 +7,26 @@ from sequence import Sequence
 
 class Dotplot(object):
     def __init__(self, sequences, plotter_args=None, drawer_args=None):
-        self.sequences = [
-            Sequence.from_fasta_file(sequences.file1),
-            Sequence.from_fasta_file(sequences.file2)
-        ]
+        if sequences.file1:
+            self.sequences = [
+                Sequence.from_fasta_file(sequences.file1),
+                Sequence.from_fasta_file(sequences.file2)
+            ]
+        else:
+            if sequences.from_ensembl:
+                sequence_list = sequences.from_ensembl
+                constructor = Sequence.from_ensembl
+            elif sequences.from_uniprot:
+                sequence_list = sequences.from_uniprot
+                constructor = Sequence.from_uniprot
+            elif sequences.from_ncbi:
+                sequence_list = sequences.from_ncbi
+                constructor = Sequence.from_ncbi
+
+            self.sequences = [
+                constructor(sequence_list[0]),
+                constructor(sequence_list[1])
+            ]
         self.plotter = Plotter(plotter_args)
         self.drawer = Drawer(drawer_args)
         self.plot = None
@@ -35,6 +51,7 @@ def is_pyqt5_available():
 
 def main():
     args = ArgumentParser().parse(sys.argv)
+
     if args.gui:
         if not is_pyqt5_available():
             print('You need to install PyQt5 to use GUI')

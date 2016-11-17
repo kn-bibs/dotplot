@@ -117,12 +117,21 @@ class ArgumentParser(object):
 
         return args
 
+    def are_enough_sequences_given(self, args):
+        """Are enough sequences given (exactly two)."""
+        return (
+            (args.sequences.file1 and args.sequences.file2) or
+            args.sequences.from_ensembl or
+            args.sequences.from_uniprot or
+            args.sequences.from_ncbi
+        )
+
     def interpret_arguments(self, args):
         """Let's try to be more intelligent and guess what the user wants."""
         # if we don't have both files given, then:
-        if not (args.sequences.file1 and args.sequences.file2):
+        if not self.are_enough_sequences_given(args):
             # force mode to be GUI
             if not args.gui:
-                print('Not enough input files given - switching to GUI mode')
+                print('Not enough sequences given - switching to GUI mode')
                 args.gui = True
         return args
