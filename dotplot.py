@@ -7,26 +7,8 @@ from sequence import Sequence
 
 class Dotplot(object):
     def __init__(self, sequences, plotter_args=None, drawer_args=None):
-        if sequences.file1:
-            self.sequences = [
-                Sequence.from_fasta_file(sequences.file1),
-                Sequence.from_fasta_file(sequences.file2)
-            ]
-        else:
-            if sequences.from_ensembl:
-                sequence_list = sequences.from_ensembl
-                constructor = Sequence.from_ensembl
-            elif sequences.from_uniprot:
-                sequence_list = sequences.from_uniprot
-                constructor = Sequence.from_uniprot
-            elif sequences.from_ncbi:
-                sequence_list = sequences.from_ncbi
-                constructor = Sequence.from_ncbi
 
-            self.sequences = [
-                constructor(sequence_list[0]),
-                constructor(sequence_list[1])
-            ]
+        self.sequences = sequences
         self.plotter = Plotter(plotter_args)
         self.drawer = Drawer(drawer_args)
         self.plot = None
@@ -70,7 +52,7 @@ def main():
             sys.exit(application.exec_())
 
     else:
-        dotplot = Dotplot(args.sequences, args.plotter, args.drawer)
+        dotplot = Dotplot(args.parsed_sequences, args.plotter, args.drawer)
         dotplot.make_plot()
         dotplot.draw()
 

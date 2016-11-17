@@ -3,6 +3,17 @@
 import requests
 
 
+class DownloadFailed(Exception):
+    """Generic excpetions used for catching sequence fetching failures."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @property
+    def message(self):
+        return self.args[0]
+
+
 class Sequence(object):
     """Reads sequence from a fasta file.
         Attributes:
@@ -29,6 +40,10 @@ class Sequence(object):
         Args:
             fastafile - fasta file open for reading.
         """
+        # return to beginning of file in sequence files
+        # (so we can use the same handler again if user wants)
+        fastafile.seek(0)
+
         name = cls.read_name(fastafile)
         sequence = cls.read_sequence(fastafile)
         return cls(sequence, name)
@@ -79,7 +94,7 @@ class Sequence(object):
         server = "http://rest.ensembl.org"
         ext = "/sequence/id/" + ensembl_id + "?"
         address = server + ext
-        sequence, name = cls.get_sequence(address)
+        sequence, name = cls.get_sequence(address, ensembl_id)
         return cls(sequence, name)
 
     @classmethod
@@ -91,7 +106,7 @@ class Sequence(object):
 
         server = "http://www.uniprot.org/uniprot/"
         address = server + uniprot_id + ".fasta"
-        sequence, name = cls.get_sequence(address)
+        sequence, name = cls.get_sequence(address, uniprot_id)
         return cls(sequence, name)
 
     @classmethod
@@ -104,11 +119,11 @@ class Sequence(object):
         base = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils'
         end = '/efetch.fcgi?'
         address = base + end + 'db=protein&id=' + ncbi_id + '&rettype=fasta'
-        sequence, name = cls.get_sequence(address)
+        sequence, name = cls.get_sequence(address, ncbi_id)
         return cls(sequence, name)
 
     @staticmethod
-    def get_sequence(address):
+    def get_sequence(address, seq_id):
         """
         Tries 3 times to download a sequence from given address, raises exception
         if download fails. Returns sequence and its name as strings.
@@ -121,15 +136,17 @@ class Sequence(object):
             if not ask:
                 print("Download failed. Trying again.")
         if not ask:
-            raise Exception("After 3 attempts sequence downloading failed.")
+            raise DownloadFailed(
+                "After 3 attempts, download of %s sequence failed." % seq_id
+            )
         else:
             print("Sequence downloaded successfully.")
 
             result = ask.text.split('\n')
-            name = result[0].strip('>')
+            name = result[0].strip('>') or seq_id
             sequence = ''.join(result[1:])
             try:
                 sequence[0].isalpha()
                 return sequence, name
             except IndexError:
-                raise Exception("Sequence not found")
+                raise DownloadFailed("Sequence %s not found" % seq_id)
