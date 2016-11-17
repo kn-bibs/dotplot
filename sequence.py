@@ -32,6 +32,9 @@ class Sequence(object):
         self.name = name
         self.sequence = sequence
 
+    def __len__(self):
+        return len(self.sequence)
+
     @classmethod
     def from_fasta_file(cls, fastafile):
         """Reads .fasta file.

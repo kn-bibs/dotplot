@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
         interior.setLayout(vbox)
         self.setCentralWidget(interior)
 
-        self.resize(500, 500)
+        self.resize(600, 600)
         self.setWindowTitle('Dotplot')
         self.show()
 
@@ -173,8 +173,9 @@ class MainWindow(QMainWindow):
         font = QFont('Monospace', 8, QFont.TypeWriter)
         text_area.setFont(font)
         text_area.setAlignment(Qt.AlignCenter)
+        text_area.setStyleSheet('font-family:Monospace,Courier')
         self.canvas = text_area
-        return text_area
+        return self.canvas
 
     def create_menus(self):
         """Create menu entries and appropriate actions."""
@@ -206,5 +207,18 @@ class MainWindow(QMainWindow):
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
+        from PyQt5.QtGui import QFont
         plot_text = dotplot.drawer.make_unicode(dotplot.plot)
+        geometry = self.frameGeometry()
+        height = geometry.height() - 100
+        width = geometry.width() - 100
+        size = round(
+            min(
+                width / len(self.sequences[0]) * 2,
+                height / len(self.sequences[1])
+            ) / 2
+        )
+        if size == 0:
+            size = 1
+        self.canvas.setStyleSheet('font-size:%spx' % size)
         self.canvas.setText(plot_text)
