@@ -110,9 +110,9 @@ class Sequence(object):
             ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
             i += 1
             if not ask:
-                print("Downloading failed. Trying again.")
+                print("Download failed. Trying again.")
         if not ask:
-            sys.exit("After 3 attempts sequence downloading failed.")
+            sys.exit("After 3 attempts sequence download failed.")
 
         if ask:
             print("Sequence downloaded successfully.")

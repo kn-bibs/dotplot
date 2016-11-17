@@ -47,8 +47,7 @@ class Choose(QWidget):
 
         sequence_id = self.id_input.text()
 
-        if not id:
-            print("haha")
+        if not sequence_id:
             self.label_error.setText('Enter sequence ID')
 
         if self.ncbi.isChecked():
