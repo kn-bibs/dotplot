@@ -27,13 +27,19 @@ cd dotplot
 ```
 
 ```bash
-python3 dotplot.py seq1.fasta seq2.fasta
+python3 dotplot.py --fasta 1.fa 2.fa
 ```
 To use graphical user interface, type: 
 
 ```bash
-python3 dotplot.py seq1.fasta seq2.fasta --gui
+./dotplot.py --fasta 1.fa 2.fa --gui
 ```
+
+You can also fetch sequences from various sources (at once):
+```bash
+./dotplot.py --gui --ncbi NP_001009852 --uniprot P03086
+```
+
 
 #### Getting help
 
