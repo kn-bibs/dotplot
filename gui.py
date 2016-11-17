@@ -95,6 +95,8 @@ class MainWindow(QMainWindow):
 
     def create_sequence_selector(self, seq_id):
         """Creates and handles widgets for a file selection."""
+        from PyQt5.QtWidgets import QToolButton
+
         file_handle = getattr(self.sequences, 'file' + seq_id)
 
         current_sequence_indicator = QLabel(self)
@@ -109,12 +111,29 @@ class MainWindow(QMainWindow):
                 setattr(self.sequences, 'file' + seq_id, file_handle)
                 current_sequence_indicator.setText(file_name)
 
+        def callback_more():
+            from choose import Choose
+            file_handle, file_name, file_type = Choose(self)
+            if file_name:
+                setattr(self.sequences, 'file' + seq_id, file_handle)
+                current_sequence_indicator.setText(file_name)
+
         select_btn = QPushButton('Select sequence ' + seq_id)
         select_btn.clicked.connect(callback_closure)
 
+        more_btn = QToolButton()
+        more_btn.setArrowType(Qt.DownArrow)
+        more_btn.clicked.connect(callback_more)
+
+        btn_box = QHBoxLayout()
+        btn_box.setContentsMargins(0, 0, 0, 0)
+        btn_box.setSpacing(0)
+        btn_box.addWidget(select_btn)
+        btn_box.addWidget(more_btn)
+
         hbox = QHBoxLayout()
         hbox.addWidget(current_sequence_indicator)
-        hbox.addWidget(select_btn)
+        btn_box.addLayout(btn_box)
 
         return hbox
 
