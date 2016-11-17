@@ -112,11 +112,11 @@ class MainWindow(QMainWindow):
                 current_sequence_indicator.setText(file_name)
 
         def callback_more():
-            from choose import Choose
-            file_handle, file_name, file_type = Choose(self)
-            if file_name:
-                setattr(self.sequences, 'file' + seq_id, file_handle)
-                current_sequence_indicator.setText(file_name)
+            from chooser import Chooser
+            database, sequence_name = Chooser.choose()
+            if sequence_name:
+                setattr(self.sequences, 'from_' + database, sequence_name)
+                current_sequence_indicator.setText(sequence_name + ' (' + database + ')')
 
         select_btn = QPushButton('Select sequence ' + seq_id)
         select_btn.clicked.connect(callback_closure)
@@ -133,7 +133,7 @@ class MainWindow(QMainWindow):
 
         hbox = QHBoxLayout()
         hbox.addWidget(current_sequence_indicator)
-        btn_box.addLayout(btn_box)
+        hbox.addLayout(btn_box)
 
         return hbox
 
