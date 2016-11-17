@@ -1,7 +1,17 @@
 """Sequence reads sequence from a fasta file or downloads it from Ensembl."""
 
-import sys
 import requests
+
+
+class DownloadFailed(Exception):
+    """Generic excpetions used for catching sequence fetching failures."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @property
+    def message(self):
+        return self.args[0]
 
 
 class Sequence(object):
@@ -22,6 +32,9 @@ class Sequence(object):
         self.name = name
         self.sequence = sequence
 
+    def __len__(self):
+        return len(self.sequence)
+
     @classmethod
     def from_fasta_file(cls, fastafile):
         """Reads .fasta file.
@@ -30,6 +43,10 @@ class Sequence(object):
         Args:
             fastafile - fasta file open for reading.
         """
+        # return to beginning of file in sequence files
+        # (so we can use the same handler again if user wants)
+        fastafile.seek(0)
+
         name = cls.read_name(fastafile)
         sequence = cls.read_sequence(fastafile)
         return cls(sequence, name)
@@ -80,44 +97,59 @@ class Sequence(object):
         server = "http://rest.ensembl.org"
         ext = "/sequence/id/" + ensembl_id + "?"
         address = server + ext
-        sequence, name = cls.try_to_download(address)
+        sequence, name = cls.get_sequence(address, ensembl_id)
         return cls(sequence, name)
 
     @classmethod
     def from_uniprot(cls, uniprot_id):
+        """
+        Takes ID from Uniprot database, returns name and
+        sequence as strings.
+        """
 
         server = "http://www.uniprot.org/uniprot/"
         address = server + uniprot_id + ".fasta"
-        sequence, name = cls.try_to_download(address)
+        sequence, name = cls.get_sequence(address, uniprot_id)
         return cls(sequence, name)
 
     @classmethod
     def from_ncbi(cls, ncbi_id):
+        """
+        Takes ID from NCBI database, returns name and
+        sequence as strings using Entrez Programming Utilities (E-utilities)
+        """
+
         base = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils'
         end = '/efetch.fcgi?'
         address = base + end + 'db=protein&id=' + ncbi_id + '&rettype=fasta'
-        response = cls.try_to_download(address)
-        name = response[1]
-        sequence = response[0]
+        sequence, name = cls.get_sequence(address, ncbi_id)
         return cls(sequence, name)
 
     @staticmethod
-    def try_to_download(address):
-
+    def get_sequence(address, seq_id):
+        """
+        Tries 3 times to download a sequence from given address, raises exception
+        if download fails. Returns sequence and its name as strings.
+        """
         ask = False
         i = 0
         while i < 3 and not ask:
             ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
             i += 1
             if not ask:
-                print("Downloading failed. Trying again.")
+                print("Download failed. Trying again.")
         if not ask:
-            sys.exit("After 3 attempts sequence downloading failed.")
-
-        if ask:
+            raise DownloadFailed(
+                "After 3 attempts, download of %s sequence failed." % seq_id
+            )
+        else:
             print("Sequence downloaded successfully.")
 
-        result = ask.text.split('\n')
-        name = result[0].strip('>')
-        sequence = ''.join(result[1:])
-        return sequence, name
+            result = ask.text.split('\n')
+            name = result[0].strip('>') or seq_id
+            sequence = ''.join(result[1:])
+            try:
+                sequence[0].isalpha()
+                return sequence, name
+            except IndexError:
+                raise DownloadFailed("Sequence %s not found" % seq_id)

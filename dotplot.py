@@ -9,10 +9,8 @@ from sequence import Sequence
 
 class Dotplot(object):
     def __init__(self, sequences, plotter_args=None, drawer_args=None):
-        self.sequences = [
-            Sequence.from_fasta_file(sequences.file1),
-            Sequence.from_fasta_file(sequences.file2)
-        ]
+
+        self.sequences = sequences
         self.plotter = Plotter(plotter_args)
         self.drawer = Drawer(drawer_args)
         self.plot = None
@@ -37,6 +35,7 @@ def is_pyqt5_available():
 
 def main():
     args = ArgumentParser().parse(sys.argv)
+
     if args.gui:
         if not is_pyqt5_available():
             print('You need to install PyQt5 to use GUI')
@@ -55,7 +54,7 @@ def main():
             sys.exit(application.exec_())
 
     else:
-        dotplot = Dotplot(args.sequences, args.plotter, args.drawer)
+        dotplot = Dotplot(args.parsed_sequences, args.plotter, args.drawer)
         dotplot.make_plot()
         dotplot.draw()
 

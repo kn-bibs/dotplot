@@ -9,6 +9,9 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
 from dotplot import Dotplot
+from sequence import DownloadFailed
+from sequence import Sequence
+from chooser import Chooser
 
 
 class MainWindow(QMainWindow):
@@ -16,7 +19,7 @@ class MainWindow(QMainWindow):
     def __init__(self, args):
         super().__init__()
 
-        self.sequences = args.sequences
+        self.sequences = args.parsed_sequences
         self.args = args
 
         self.init_ui()
@@ -26,7 +29,7 @@ class MainWindow(QMainWindow):
 
     def are_sequences_loaded(self):
         """Sequences are correctly loaded if both file handles are not empty"""
-        return self.sequences.file1 and self.sequences.file2
+        return len(self.sequences) >= 2 and self.sequences[0] and self.sequences[1]
 
     def init_ui(self):
         """Initialize all GUI elements and show window."""
@@ -46,7 +49,7 @@ class MainWindow(QMainWindow):
         interior.setLayout(vbox)
         self.setCentralWidget(interior)
 
-        self.resize(500, 500)
+        self.resize(600, 600)
         self.setWindowTitle('Dotplot')
         self.show()
 
@@ -61,11 +64,6 @@ class MainWindow(QMainWindow):
                 'Please, select sequences first :)'
             )
             return False
-
-        # return to beginning of file in sequence files
-        # (so we can use the same handler again if ueser wants)
-        self.sequences.file1.seek(0)
-        self.sequences.file2.seek(0)
 
         # make new dotplot
         dotplot = Dotplot(
@@ -95,33 +93,66 @@ class MainWindow(QMainWindow):
 
     def create_sequence_selector(self, seq_id):
         """Creates and handles widgets for a file selection."""
-        file_handle = getattr(self.sequences, 'file' + seq_id)
+        from PyQt5.QtWidgets import QToolButton
 
         current_sequence_indicator = QLabel(self)
         current_sequence_indicator.setText(
-            file_handle.name if file_handle else 'Not selected'
+            self.sequences[seq_id - 1].name
+            if len(self.sequences) >= seq_id
+            else 'Not selected'
         )
 
-        def callback_closure():
+        def load_sequence(source, value, name):
+            try:
+                constructor = getattr(Sequence, source)
+                self.sequences[seq_id - 1] = constructor(value)
+
+                current_sequence_indicator.setText(name)
+            except DownloadFailed as e:
+                self.statusBar().showMessage(e.message)
+
+        def callback_file():
             file_name, file_type = self.select_sequence_dialog()
             if file_name:
                 file_handle = open(file_name, 'r')
-                setattr(self.sequences, 'file' + seq_id, file_handle)
-                current_sequence_indicator.setText(file_name)
+                load_sequence('from_fasta_file', file_handle, file_name)
 
-        select_btn = QPushButton('Select sequence ' + seq_id)
-        select_btn.clicked.connect(callback_closure)
+        def callback_more():
+            result = Chooser.choose()
+            if not result:
+                return
+            database, sequence_name = result
+            if not sequence_name:
+                return
+            load_sequence(
+                'from_' + database,
+                sequence_name,
+                sequence_name + ' (' + database + ')'
+            )
+
+        select_btn = QPushButton('Select sequence %s' % seq_id)
+        select_btn.clicked.connect(callback_file)
+
+        more_btn = QToolButton()
+        more_btn.setArrowType(Qt.DownArrow)
+        more_btn.clicked.connect(callback_more)
+
+        btn_box = QHBoxLayout()
+        btn_box.setContentsMargins(0, 0, 0, 0)
+        btn_box.setSpacing(0)
+        btn_box.addWidget(select_btn)
+        btn_box.addWidget(more_btn)
 
         hbox = QHBoxLayout()
         hbox.addWidget(current_sequence_indicator)
-        hbox.addWidget(select_btn)
+        hbox.addLayout(btn_box)
 
         return hbox
 
     def create_sequence_form(self):
         """Create whole panel for sequence selection."""
-        sequence_1_selector = self.create_sequence_selector('1')
-        sequence_2_selector = self.create_sequence_selector('2')
+        sequence_1_selector = self.create_sequence_selector(1)
+        sequence_2_selector = self.create_sequence_selector(2)
         plot_button = QPushButton('Plot!')
         plot_button.clicked.connect(self.new_plot)
 
@@ -142,8 +173,9 @@ class MainWindow(QMainWindow):
         font = QFont('Monospace', 8, QFont.TypeWriter)
         text_area.setFont(font)
         text_area.setAlignment(Qt.AlignCenter)
+        text_area.setStyleSheet('font-family:Monospace,Courier')
         self.canvas = text_area
-        return text_area
+        return self.canvas
 
     def create_menus(self):
         """Create menu entries and appropriate actions."""
@@ -175,5 +207,18 @@ class MainWindow(QMainWindow):
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
+        from PyQt5.QtGui import QFont
         plot_text = dotplot.drawer.make_unicode(dotplot.plot)
+        geometry = self.frameGeometry()
+        height = geometry.height() - 100
+        width = geometry.width() - 100
+        size = round(
+            min(
+                width / len(self.sequences[0]) * 2,
+                height / len(self.sequences[1])
+            ) / 2
+        )
+        if size == 0:
+            size = 1
+        self.canvas.setStyleSheet('font-size:%spx' % size)
         self.canvas.setText(plot_text)
