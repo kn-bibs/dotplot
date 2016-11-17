@@ -27,9 +27,9 @@ class ArgumentParser(object):
 
     def __init__(self):
         """
-        If you want add:
+        If you want to add:
             positional argument
-                you should specify it name as you want to access it
+                you should specify its name as you want to access it
                 and use metavar parameter to set display name
             optional argument
                 you should specify dest as you want to access it
@@ -63,6 +63,40 @@ class ArgumentParser(object):
                 ' If specified no additional arguments are required.'
             )
         )
+
+        self.sequences.add_argument(
+            '--ncbi',
+            dest='sequences.from_ncbi',
+            metavar='ncbi id',
+            nargs=2,
+            type=str,
+            help=(
+                'Run the program downloading sequences from NCBI database.' +
+                'For example: --ncbi NC_000017.11 NC_000071.6'
+            )
+        )
+        self.sequences.add_argument(
+            '--uniprot',
+            dest='sequences.from_uniprot',
+            metavar='uniprot id',
+            nargs=2,
+            type=str,
+            help=(
+                'Run the program downloading sequences from Uniprot database.' +
+                'For example: --uniprot P48754 P97929'
+            )
+        )
+        self.sequences.add_argument(
+            '--ensembl',
+            dest='sequences.from_ensembl',
+            metavar='ensembl id',
+            nargs=2,
+            type=str,
+            help=(
+                'Run the program downloading sequences from Ensembl database.' +
+                'For example: --ensembl ENSG00000157764 ENSG00000157764'
+            )
+        )
         # todo: plotter.window_size (from 1 (possibly to 1000, but better without upper limitation))
         # todo: plotter.stringency (from 1 to squared window_size)
         # todo: plotter.matrix (PAM250, BINARY) (use choice)
@@ -83,12 +117,21 @@ class ArgumentParser(object):
 
         return args
 
+    def are_enough_sequences_given(self, args):
+        """Are enough sequences given (exactly two)."""
+        return (
+            (args.sequences.file1 and args.sequences.file2) or
+            args.sequences.from_ensembl or
+            args.sequences.from_uniprot or
+            args.sequences.from_ncbi
+        )
+
     def interpret_arguments(self, args):
         """Let's try to be more intelligent and guess what the user wants."""
         # if we don't have both files given, then:
-        if not (args.sequences.file1 and args.sequences.file2):
+        if not self.are_enough_sequences_given(args):
             # force mode to be GUI
             if not args.gui:
-                print('Not enough input files given - switching to GUI mode')
+                print('Not enough sequences given - switching to GUI mode')
                 args.gui = True
         return args
