@@ -1,6 +1,5 @@
 """Sequence reads sequence from a fasta file or downloads it from Ensembl."""
 
-import sys
 import requests
 
 
@@ -80,30 +79,40 @@ class Sequence(object):
         server = "http://rest.ensembl.org"
         ext = "/sequence/id/" + ensembl_id + "?"
         address = server + ext
-        sequence, name = cls.try_to_download(address)
+        sequence, name = cls.get_sequence(address)
         return cls(sequence, name)
 
     @classmethod
     def from_uniprot(cls, uniprot_id):
+        """
+        Takes ID from Uniprot database, returns name and
+        sequence as strings.
+        """
 
         server = "http://www.uniprot.org/uniprot/"
         address = server + uniprot_id + ".fasta"
-        sequence, name = cls.try_to_download(address)
+        sequence, name = cls.get_sequence(address)
         return cls(sequence, name)
 
     @classmethod
     def from_ncbi(cls, ncbi_id):
+        """
+        Takes ID from NCBI database, returns name and
+        sequence as strings using Entrez Programming Utilities (E-utilities)
+        """
+
         base = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils'
         end = '/efetch.fcgi?'
         address = base + end + 'db=protein&id=' + ncbi_id + '&rettype=fasta'
-        response = cls.try_to_download(address)
-        name = response[1]
-        sequence = response[0]
+        sequence, name = cls.get_sequence(address)
         return cls(sequence, name)
 
     @staticmethod
-    def try_to_download(address):
-
+    def get_sequence(address):
+        """
+        Tries 3 times to download a sequence from given address, raises exception
+        if download fails. Returns sequence and its name as strings.
+        """
         ask = False
         i = 0
         while i < 3 and not ask:
@@ -112,12 +121,15 @@ class Sequence(object):
             if not ask:
                 print("Downloading failed. Trying again.")
         if not ask:
-            sys.exit("After 3 attempts sequence downloading failed.")
-
-        if ask:
+            raise Exception("After 3 attempts sequence downloading failed.")
+        else:
             print("Sequence downloaded successfully.")
 
-        result = ask.text.split('\n')
-        name = result[0].strip('>')
-        sequence = ''.join(result[1:])
-        return sequence, name
+            result = ask.text.split('\n')
+            name = result[0].strip('>')
+            sequence = ''.join(result[1:])
+            try:
+                sequence[0].isalpha()
+                return sequence, name
+            except IndexError:
+                raise Exception("Sequence not found")
