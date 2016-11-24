@@ -1,7 +1,7 @@
 """Sequence reads sequence from a fasta file or downloads it from Ensembl."""
 
 import requests
-
+import os
 
 class DownloadFailed(Exception):
     """Generic excpetions used for catching sequence fetching failures."""
@@ -49,6 +49,21 @@ class Sequence(object):
 
         name = cls.read_name(fastafile)
         sequence = cls.read_sequence(fastafile)
+        return cls(sequence, name)
+
+    @classmethod
+    def from_text_file(cls, textfile):
+        """Reads .txt file.
+        Saves sequence and its name to attributes sequence and name.
+        Sequence name is the name of the plain text file.
+
+        Args:
+            textfile - text file open for reading.
+        """
+        textfile.seek(0)
+
+        name = getattr(textfile, 'name').split(os.sep)[-1][:-4]
+        sequence = cls.read_sequence(textfile)
         return cls(sequence, name)
 
     @staticmethod

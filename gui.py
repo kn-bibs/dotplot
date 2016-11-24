@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
             self,
             'Open file',
             '',   # use the last (or default) directory. It HAS to be str
-            'Fasta files (*.fa *.fasta);;All files (*)'
+            'Fasta files (*.fa *.fasta);;Plain text file (*.txt);;All files (*)'
         )
 
         return selected_file_data
@@ -113,9 +113,12 @@ class MainWindow(QMainWindow):
 
         def callback_file():
             file_name, file_type = self.select_sequence_dialog()
-            if file_name:
+            if file_name.endswith('.fa'):
                 file_handle = open(file_name, 'r')
                 load_sequence('from_fasta_file', file_handle, file_name)
+            elif file_name.endswith('.txt'):
+                file_handle = open(file_name, 'r')
+                load_sequence('from_text_file', file_handle, file_name)
 
         def callback_more():
             result = Chooser.choose()
