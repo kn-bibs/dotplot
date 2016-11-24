@@ -5,17 +5,20 @@ from matplotlib.figure import Figure
 
 
 class MyFigure(FigureCanvas):
+
+
     def __init__(self):
 
         self.fig = Figure()
         FigureCanvas.__init__(self, self.fig)
 
-        self.axes = self.fig.add_subplot(111)
+        self.main_plot = None
+        self.create_main_plot()
 
-    def draw_dotplot(self, dot_matrix):
+    def create_main_plot(self):
+        self.main_plot = self.fig.add_subplot(111)
+
+    def reset(self):
         self.fig.clear()
-        self.axes.clear()
-        self.draw()
-        self.axes = self.fig.add_subplot(111)
-        self.axes.imshow(dot_matrix, cmap='Greys', interpolation='nearest')
-        self.draw()
+        self.main_plot.clear()
+        self.create_main_plot()

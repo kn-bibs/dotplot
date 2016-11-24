@@ -3,6 +3,7 @@ Parses arguments and performs basic validation.
 """
 import argparse
 from sequence import Sequence
+from drawer import Drawer
 from collections import defaultdict
 
 
@@ -19,6 +20,15 @@ class NestedNamespace(argparse.Namespace):
             self.__dict__[group] = nested_namespace
         else:
             self.__dict__[name] = value
+
+    def get(self, name, default):
+        if '.' in name:
+            # TODO
+            raise NotImplementedError
+        try:
+            return getattr(self, name)
+        except AttributeError:
+            return default
 
 
 class ArgumentParser(object):
@@ -46,6 +56,7 @@ class ArgumentParser(object):
         self.parser = argparse.ArgumentParser()
 
         self.sequences = self.parser.add_argument_group('sequences')
+        self.drawer = self.parser.add_argument_group('drawings')
 
         self.sequences.add_argument(
             '--fasta',
@@ -63,6 +74,15 @@ class ArgumentParser(object):
             help=(
                 'Run the program in Graphical Interface mode.' +
                 ' If specified no additional arguments are required.'
+            )
+        )
+        self.drawer.add_argument(
+            '--drawer',
+            dest='drawer.method',
+            choices=Drawer({}).drawing_methods.keys(),
+            help=(
+                'Choose a drawing method. Defaults to matplotlib in GUI mode' +
+                ' and to unicode for console mode.'
             )
         )
 
@@ -113,7 +133,6 @@ class ArgumentParser(object):
         """
         args = self.parser.parse_args(arguments[1:], self.nested_namespace)
         args.plotter = NestedNamespace()
-        args.drawer = NestedNamespace()
 
         args = self.interpret_arguments(args)
 
@@ -144,5 +163,17 @@ class ArgumentParser(object):
             if not args.gui:
                 print('Not enough sequences given - switching to GUI mode')
                 args.gui = True
+
+        # set drawer method to defaults if not set
+        if not args.drawer.method:
+            from dotplot import is_matplotlib_available
+
+            method = 'unicode'
+
+            if args.gui:
+                if is_matplotlib_available():
+                    method = 'matplotlib'
+
+            args.drawer.method = method
 
         return args

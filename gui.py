@@ -12,7 +12,6 @@ from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
 from chooser import Chooser
-from figures_plot import MyFigure
 
 
 class MainWindow(QMainWindow):
@@ -22,7 +21,7 @@ class MainWindow(QMainWindow):
         self.sequences = args.parsed_sequences
         self.args = args
 
-        self.use_matplotlib = True
+        self.use_matplotlib = args.drawer.method == 'matplotlib'
 
         self.init_ui()
 
@@ -39,7 +38,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage('Welcome')
         self.create_menus()
 
-        canvas = self.create_canvas()
+        canvas_box = self.create_canvas()
         sequence_form = self.create_sequence_form()
 
         # let's have the sequence form over the canvas.
@@ -47,7 +46,7 @@ class MainWindow(QMainWindow):
         vbox.addLayout(sequence_form, stretch=0)
         vbox.setAlignment(Qt.AlignTop)
 
-        vbox.addLayout(canvas, stretch=1)
+        vbox.addLayout(canvas_box, stretch=1)
 
         interior = QWidget()
         interior.setLayout(vbox)
@@ -177,11 +176,11 @@ class MainWindow(QMainWindow):
 
         Currently TextEdit is used - only temporarily ;)
         """
+        self.canvas_box = QVBoxLayout()
 
         if self.use_matplotlib:
-            self.canvas = QVBoxLayout()
-            self.matplot = MyFigure()
-            self.canvas.addWidget(self.matplot)
+            from figures_plot import MyFigure
+            self.canvas = MyFigure()
         else:
             from PyQt5.QtGui import QFont
             text_area = QLabel()
@@ -191,7 +190,9 @@ class MainWindow(QMainWindow):
             text_area.setStyleSheet('font-family:Monospace,Courier')
             self.canvas = text_area
 
-        return self.canvas
+        self.canvas_box.addWidget(self.canvas)
+
+        return self.canvas_box
 
     def create_menus(self):
         """Create menu entries and appropriate actions."""
@@ -226,20 +227,23 @@ class MainWindow(QMainWindow):
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
-        from PyQt5.QtGui import QFont
-        # plot_text = dotplot.drawer.make_unicode(dotplot.plot)
-        """geometry = self.frameGeometry()
-        height = geometry.height() - 100
-        width = geometry.width() - 100
-        size = round(
-            min(
-                width / len(self.sequences[0]) * 2,
-                height / len(self.sequences[1])
-            ) / 2
-        )
-        if size == 0:
-            size = 1"""
-        # self.canvas.setStyleSheet('font-size:%spx' % size)
-        # self.canvas.setText(plot_text)
-        dotplot.drawer.draw_matplotlib(dotplot.plot, self.matplot)
 
+        if self.use_matplotlib:
+            self.canvas.reset()
+            dotplot.draw(self.canvas.main_plot)
+            self.canvas.draw()
+        else:
+            plot_text = dotplot.draw()
+            geometry = self.frameGeometry()
+            height = geometry.height() - 100
+            width = geometry.width() - 100
+            size = round(
+                min(
+                    width / len(self.sequences[0]) * 2,
+                    height / len(self.sequences[1])
+                ) / 2
+            )
+            if size == 0:
+                size = 1
+            self.canvas.setStyleSheet('font-size:%spx' % size)
+            self.canvas.setText(plot_text)
