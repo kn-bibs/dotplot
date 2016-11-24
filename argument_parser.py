@@ -36,6 +36,7 @@ class ArgumentParser(object):
     nested_namespace = NestedNamespace()
 
     sequence_sources = [
+        'from_text_file',
         'from_fasta_file',
         'from_ensembl',
         'from_uniprot',
@@ -65,6 +66,15 @@ class ArgumentParser(object):
             nargs='*',
             type=argparse.FileType(),
             help='Input file(s) in FASTA format'
+        )
+
+        self.sequences.add_argument(
+            '--txt',
+            dest='sequences.from_text_file',
+            metavar='filename',
+            nargs='*',
+            type=argparse.FileType(),
+            help='Input plain file(s) like *.txt'
         )
 
         self.parser.add_argument(
