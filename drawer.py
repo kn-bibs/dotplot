@@ -1,3 +1,5 @@
+import figures_plot
+
 class Drawer(object):
     """Creates a Drawer object"""
 
@@ -10,7 +12,8 @@ class Drawer(object):
         else:
             drawing_methods = {
                 'unicode': self.draw_unicode,
-                'ascii': self.draw_ascii
+                'ascii': self.draw_ascii,
+                'matplotlib': self.draw_matplotlib
             }
             self.draw = drawing_methods[arguments.mode]
 
@@ -55,3 +58,6 @@ class Drawer(object):
         """
         drawings = self.make_unicode(dot_matrix)
         print(drawings)
+
+    def draw_matplotlib(self, dot_matrix, figure):
+        figure.draw_dotplot(dot_matrix)
