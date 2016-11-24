@@ -12,6 +12,7 @@ from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
 from chooser import Chooser
+from figures_plot import MyFigure
 
 
 class MainWindow(QMainWindow):
@@ -21,12 +22,12 @@ class MainWindow(QMainWindow):
         self.sequences = args.parsed_sequences
         self.args = args
 
+        self.use_matplotlib = True
+
         self.init_ui()
 
         if self.are_sequences_loaded():
             self.new_plot()
-            
-        self.use_matplotlib = True
 
     def are_sequences_loaded(self):
         """Sequences are correctly loaded if both file handles are not empty"""
@@ -173,10 +174,10 @@ class MainWindow(QMainWindow):
 
         Currently TextEdit is used - only temporarily ;)
         """
-        
+
         if self.use_matplotlib:
             self.canvas = QVBoxLayout()
-            self.matplot = figures_plot.MyFigure()
+            self.matplot = MyFigure()
             self.canvas.addWidget(self.matplot)
         else:
             from PyQt5.QtGui import QFont
@@ -186,7 +187,7 @@ class MainWindow(QMainWindow):
             text_area.setAlignment(Qt.AlignCenter)
             text_area.setStyleSheet('font-family:Monospace,Courier')
             self.canvas = text_area
-        
+
         return self.canvas
 
     def create_menus(self):
@@ -238,4 +239,4 @@ class MainWindow(QMainWindow):
         # self.canvas.setStyleSheet('font-size:%spx' % size)
         # self.canvas.setText(plot_text)
         dotplot.drawer.draw_matplotlib(dotplot.plot, self.matplot)
- 
+

@@ -60,4 +60,4 @@ class Drawer(object):
         print(drawings)
 
     def draw_matplotlib(self, dot_matrix, figure):
-        figure.update(dot_matrix)
+        figure.draw_dotplot(dot_matrix)
