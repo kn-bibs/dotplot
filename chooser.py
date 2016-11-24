@@ -15,6 +15,9 @@ class Chooser(QDialog):
         self.ncbi = QRadioButton('NCBI ', self)
         self.uniprot = QRadioButton('Uniprot', self)
         self.ensembl = QRadioButton('Ensembl', self)
+        self.ncbi.toggled.connect(self.set_hint)
+        self.uniprot.toggled.connect(self.set_hint)
+        self.ensembl.toggled.connect(self.set_hint)
 
         label_database = QLabel('Download sequence from a database: ', self)
         self.label_error = QLabel('')
@@ -27,6 +30,7 @@ class Chooser(QDialog):
 
         give_id = QLabel('Enter sequence ID')
         self.id_input = QLineEdit(self)
+        self.id_input.setPlaceholderText('Sequence ID')
         #download = QPushButton('Download', self)
         #download.clicked.connect(self.download)
 
@@ -52,26 +56,41 @@ class Chooser(QDialog):
         #self.show()
 
     def get_state(self):
-
         sequence_id = self.id_input.text()
 
         if not sequence_id:
             self.label_error.setText('Enter sequence ID')
             return False
 
-        if self.ncbi.isChecked():
-            database = 'ncbi'
-        elif self.uniprot.isChecked():
-            database = 'uniprot'
-        elif self.ensembl.isChecked():
-            database = 'ensembl'
-        else:
+        database = self.get_database()
+
+        if not database:
             self.label_error.setText('No database is selected')
 
         try:
             return database, sequence_id
         except UnboundLocalError:
             return False
+
+    def get_database(self):
+        if self.ncbi.isChecked():
+            return 'ncbi'
+        elif self.uniprot.isChecked():
+            return  'uniprot'
+        elif self.ensembl.isChecked():
+            return  'ensembl'
+
+    def set_hint(self):
+        placeholders = {
+            'ncbi': 'example: NC_000017.11',
+            'uniprot': 'example: P97929',
+            'ensembl': 'example: ENSG00000157764'
+        }
+        database = self.get_database()
+
+        hint = placeholders[database]
+
+        self.id_input.setPlaceholderText(hint)
 
     @staticmethod
     def choose():
