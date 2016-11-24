@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import sys
 from argument_parser import ArgumentParser
 from drawer import Drawer

@@ -17,7 +17,7 @@ git clone https://github.com/kn-bibs/dotplot
 
 To use graphical user interface, you will need to have pyqt5 installed, e.g. with:
 ```python3
-sudo pip3 install pyqt5
+sudo apt-get install python3-pyqt5
 ```
 
 ### Basic usage
@@ -27,13 +27,19 @@ cd dotplot
 ```
 
 ```bash
-python3 dotplot.py seq1.fasta seq2.fasta
+python3 dotplot.py --fasta 1.fa 2.fa
 ```
 To use graphical user interface, type: 
 
 ```bash
-python3 dotplot.py seq1.fasta seq2.fasta --gui
+./dotplot.py --fasta 1.fa 2.fa --gui
 ```
+
+You can also fetch sequences from various sources (at once):
+```bash
+./dotplot.py --gui --ncbi NP_001009852 --uniprot P03086
+```
+
 
 #### Getting help
 
