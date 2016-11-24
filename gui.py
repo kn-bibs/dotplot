@@ -118,12 +118,17 @@ class MainWindow(QMainWindow):
 
         def callback_file():
             file_name, file_type = self.select_sequence_dialog()
-            if file_name.endswith('.fa'):
-                file_handle = open(file_name, 'r')
+            file_handle = open(file_name, 'r')
+
+            if file_name.endswith('.fa') or file_name.endswith('.fasta'):
                 load_sequence('from_fasta_file', file_handle, file_name)
             elif file_name.endswith('.txt'):
-                file_handle = open(file_name, 'r')
                 load_sequence('from_text_file', file_handle, file_name)
+            else:
+                # TODO: let user know, we did not recognize given file ext
+                pass
+
+            file_handle.close()
 
         def callback_more():
             result = Chooser.choose()

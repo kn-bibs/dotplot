@@ -6,7 +6,6 @@ from matplotlib.figure import Figure
 
 class MyFigure(FigureCanvas):
 
-
     def __init__(self):
 
         self.fig = Figure()
