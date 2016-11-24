@@ -17,7 +17,7 @@ git clone https://github.com/kn-bibs/dotplot
 
 To use graphical user interface, you will need to have pyqt5 installed, e.g. with:
 ```python3
-sudo pip3 install pyqt5
+sudo apt-get install python3-pyqt5
 ```
 
 ### Basic usage
