@@ -59,7 +59,5 @@ class Drawer(object):
         drawings = self.make_unicode(dot_matrix)
         print(drawings)
 
-    def draw_matplotlib(self, dot_matrix):
-        new_plot = figures_plot.MyFigure(dot_matrix)
-        return new_plot
-
+    def draw_matplotlib(self, dot_matrix, figure):
+        figure.update(dot_matrix)

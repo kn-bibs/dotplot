@@ -26,6 +26,8 @@ class MainWindow(QMainWindow):
 
         if self.are_sequences_loaded():
             self.new_plot()
+            
+        self.use_matplotlib = True
 
     def are_sequences_loaded(self):
         """Sequences are correctly loaded if both file handles are not empty"""
@@ -170,15 +172,20 @@ class MainWindow(QMainWindow):
 
         Currently TextEdit is used - only temporarily ;)
         """
-        from PyQt5.QtGui import QFont
-        """text_area = QLabel()
-        font = QFont('Monospace', 8, QFont.TypeWriter)
-        text_area.setFont(font)
-        text_area.setAlignment(Qt.AlignCenter)
-        text_area.setStyleSheet('font-family:Monospace,Courier')"""
-
-        self.canvas = QVBoxLayout()
-
+        
+        if self.use_matplotlib:
+            self.canvas = QVBoxLayout()
+            self.matplot = figures_plot.MyFigure()
+            self.canvas.addWidget(self.matplot)
+        else:
+            from PyQt5.QtGui import QFont
+            text_area = QLabel()
+            font = QFont('Monospace', 8, QFont.TypeWriter)
+            text_area.setFont(font)
+            text_area.setAlignment(Qt.AlignCenter)
+            text_area.setStyleSheet('font-family:Monospace,Courier')
+            self.canvas = text_area
+        
         return self.canvas
 
     def create_menus(self):
@@ -229,5 +236,5 @@ class MainWindow(QMainWindow):
             size = 1"""
         # self.canvas.setStyleSheet('font-size:%spx' % size)
         # self.canvas.setText(plot_text)
-        plot_lol = dotplot.drawer.draw_matplotlib(dotplot.plot)
-        self.canvas.addWidget(plot_lol)
+        dotplot.drawer.draw_matplotlib(dotplot.plot, self.matplot)
+ 
