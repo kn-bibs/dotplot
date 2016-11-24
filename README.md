@@ -19,6 +19,10 @@ To use graphical user interface, you will need to have pyqt5 installed, e.g. wit
 ```python3
 sudo apt-get install python3-pyqt5
 ```
+To use matplotlib for drawing, you need to have it installed, e.g. with:
+```bash
+sudo pip3 install matplotlib
+```
 
 ### Basic usage
 
