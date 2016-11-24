@@ -12,7 +12,6 @@ from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
 from chooser import Chooser
-from matplotlib import pyplot
 
 
 class MainWindow(QMainWindow):
@@ -90,7 +89,9 @@ class MainWindow(QMainWindow):
             self,
             'Open file',
             '',  # use the last (or default) directory. It HAS to be str
-            'Fasta files (*.fa *.fasta);;All files (*)'
+            'Fasta files (*.fa *.fasta);;All files (*)',
+            None,
+            QFileDialog.DontUseNativeDialog
         )
 
         return selected_file_data
