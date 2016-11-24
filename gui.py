@@ -12,10 +12,10 @@ from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
 from chooser import Chooser
+from matplotlib import pyplot
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self, args):
         super().__init__()
 
@@ -42,8 +42,10 @@ class MainWindow(QMainWindow):
 
         # let's have the sequence form over the canvas.
         vbox = QVBoxLayout()
-        vbox.addLayout(sequence_form)
-        vbox.addWidget(canvas)
+        vbox.addLayout(sequence_form, stretch=0)
+        vbox.setAlignment(Qt.AlignTop)
+
+        vbox.addLayout(canvas, stretch=1)
 
         interior = QWidget()
         interior.setLayout(vbox)
@@ -85,7 +87,7 @@ class MainWindow(QMainWindow):
         selected_file_data = QFileDialog.getOpenFileName(
             self,
             'Open file',
-            '',   # use the last (or default) directory. It HAS to be str
+            '',  # use the last (or default) directory. It HAS to be str
             'Fasta files (*.fa *.fasta);;All files (*)'
         )
 
@@ -169,12 +171,14 @@ class MainWindow(QMainWindow):
         Currently TextEdit is used - only temporarily ;)
         """
         from PyQt5.QtGui import QFont
-        text_area = QLabel()
+        """text_area = QLabel()
         font = QFont('Monospace', 8, QFont.TypeWriter)
         text_area.setFont(font)
         text_area.setAlignment(Qt.AlignCenter)
-        text_area.setStyleSheet('font-family:Monospace,Courier')
-        self.canvas = text_area
+        text_area.setStyleSheet('font-family:Monospace,Courier')"""
+
+        self.canvas = QVBoxLayout()
+
         return self.canvas
 
     def create_menus(self):
@@ -203,13 +207,16 @@ class MainWindow(QMainWindow):
         QMessageBox.about(
             self,
             'About Dotplot',
-            'There are <i>many</i> programs that attempt to create dotplots already. Unfortunately most of these programs was created long time ago and written in old versions of Java. <p>This Python3 package will allow new generations of bioinformaticians to generate dotplots much easier.</p>')
+            'There are <i>many</i> programs that attempt to create dotplots already. '
+            'Unfortunately most of these programs was created long time ago and written '
+            'in old versions of Java. <p>This Python3 package will allow new generations '
+            'of bioinformaticians to generate dotplots much easier.</p>')
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
         from PyQt5.QtGui import QFont
-        plot_text = dotplot.drawer.make_unicode(dotplot.plot)
-        geometry = self.frameGeometry()
+        # plot_text = dotplot.drawer.make_unicode(dotplot.plot)
+        """geometry = self.frameGeometry()
         height = geometry.height() - 100
         width = geometry.width() - 100
         size = round(
@@ -219,6 +226,8 @@ class MainWindow(QMainWindow):
             ) / 2
         )
         if size == 0:
-            size = 1
-        self.canvas.setStyleSheet('font-size:%spx' % size)
-        self.canvas.setText(plot_text)
+            size = 1"""
+        # self.canvas.setStyleSheet('font-size:%spx' % size)
+        # self.canvas.setText(plot_text)
+        plot_lol = dotplot.drawer.draw_matplotlib(dotplot.plot)
+        self.canvas.addWidget(plot_lol)
