@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
             self,
             'Open file',
             '',  # use the last (or default) directory. It HAS to be str
-            'Fasta files (*.fa *.fasta);;All files (*)',
+            'Fasta files (*.fa *.fasta);;Plain text file (*.txt);;All files (*)',
             None,
             QFileDialog.DontUseNativeDialog
         )
@@ -118,6 +118,10 @@ class MainWindow(QMainWindow):
 
         def callback_file():
             file_name, file_type = self.select_sequence_dialog()
+
+            if not file_name:
+                return
+
             file_handle = open(file_name, 'r')
 
             if file_name.endswith('.fa') or file_name.endswith('.fasta'):
