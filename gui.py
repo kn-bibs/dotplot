@@ -139,6 +139,8 @@ class MainWindow(QMainWindow):
 
         def callback_more():
             result = Chooser.choose()
+            if not result:  # chooser does not guarantee to return a tuple
+                return
             database, sequence_name = result
             self.statusBar().showMessage('Sequence download in progress')
             load_sequence(
