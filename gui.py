@@ -69,6 +69,7 @@ class MainWindow(QMainWindow):
             return False
 
         # make new dotplot
+        self.statusBar().showMessage('Creating a plot')
         dotplot = Dotplot(
             self.sequences,
             self.args.plotter,
@@ -78,6 +79,7 @@ class MainWindow(QMainWindow):
         dotplot.make_plot()
 
         self.display_plot(dotplot)
+        self.statusBar().showMessage('Plot created successfully')
 
     def select_sequence_dialog(self):
         """Invoke dialog window allowing to choose a sequence file.
@@ -113,6 +115,7 @@ class MainWindow(QMainWindow):
                 self.sequences[seq_id - 1] = constructor(value)
 
                 current_sequence_indicator.setText(name)
+                self.statusBar().showMessage('Sequence downloaded successfully')
             except DownloadFailed as e:
                 self.statusBar().showMessage(e.message)
 
@@ -136,11 +139,8 @@ class MainWindow(QMainWindow):
 
         def callback_more():
             result = Chooser.choose()
-            if not result:
-                return
             database, sequence_name = result
-            if not sequence_name:
-                return
+            self.statusBar().showMessage('Sequence download in progress')
             load_sequence(
                 'from_' + database,
                 sequence_name,
