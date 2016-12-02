@@ -241,7 +241,7 @@ class MainWindow(QMainWindow):
 
         if self.use_matplotlib:
             self.canvas.reset()
-            dotplot.draw(self.canvas.main_plot)
+            dotplot.draw(self.canvas.main_plot, self.sequences)
             self.canvas.draw()
         else:
             plot_text = dotplot.draw()
