@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
+import matplotlib as mpl
 from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
@@ -41,12 +42,14 @@ class MainWindow(QMainWindow):
         canvas_box = self.create_canvas()
         sequence_form = self.create_sequence_form()
 
+
         # let's have the sequence form over the canvas.
         vbox = QVBoxLayout()
         vbox.addLayout(sequence_form, stretch=0)
         vbox.setAlignment(Qt.AlignTop)
 
         vbox.addLayout(canvas_box, stretch=1)
+
 
         interior = QWidget()
         interior.setLayout(vbox)
@@ -97,6 +100,21 @@ class MainWindow(QMainWindow):
         )
 
         return selected_file_data
+
+    def select_save_file_dialog(self):
+        selected_file_data = QFileDialog.getSaveFileName(
+            self,
+            'Choose a directory',
+            '',  # use the last (or default) directory. It HAS to be str
+            'PNG file (*.png);;PDF file (*.pdf);;All files (*)',
+            None,
+            QFileDialog.DontUseNativeDialog
+        )
+        self.save_file(selected_file_data)
+
+    def save_file(self, file_data):
+        """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
+        self.canvas.save_file(file_data)
 
     def create_sequence_selector(self, seq_id):
         """Creates and handles widgets for a file selection."""
@@ -188,6 +206,8 @@ class MainWindow(QMainWindow):
         Currently TextEdit is used - only temporarily ;)
         """
         self.canvas_box = QVBoxLayout()
+        savebutton = QPushButton('Save plot to file')
+        savebutton.clicked.connect(self.select_save_file_dialog)
 
         if self.use_matplotlib:
             from figures_plot import MyFigure
@@ -202,6 +222,7 @@ class MainWindow(QMainWindow):
             self.canvas = text_area
 
         self.canvas_box.addWidget(self.canvas)
+        self.canvas_box.addWidget(savebutton)
 
         return self.canvas_box
 
