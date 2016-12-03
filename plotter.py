@@ -75,10 +75,7 @@ class Plotter(object):
         for i in range(self.window_size):
             for j in range(self.window_size):
                 current_score += self.get_score(seq1[i], seq2[j])
-        if current_score > self.stringency:
-            scores[-1].append(1)
-        else:
-            scores[-1].append(0)
+        self.append_to_scores(current_score, scores)
 
         for row in range(len(seq1) - self.window_size):
             for col in range(len(seq2) - self.window_size):
@@ -86,10 +83,7 @@ class Plotter(object):
                     current_score -= self.get_score(seq1[row+i], seq2[col])
                     current_score += self.get_score(seq1[row+i],
                                                     seq2[col + self.window_size])
-                if current_score > self.stringency:
-                    scores[-1].append(1)
-                else:
-                    scores[-1].append(0)
+                self.append_to_scores(current_score, scores)
             current_score = scores[-1][0]
             for i in range(self.window_size):
                 current_score -= self.get_score(seq1[row], seq2[i])
@@ -97,3 +91,10 @@ class Plotter(object):
                                                 seq2[i])
             scores.append([])
         return scores[:-1]
+
+    def append_to_scores(self, current_score, scores):
+        if current_score > self.stringency:
+            scores[-1].append(1)
+        else:
+            scores[-1].append(0)
+        
