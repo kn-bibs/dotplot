@@ -6,6 +6,14 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - pip install pytest pytest-cov coveralls
 
-script: python3 -m pytest
+
+script:
+  - python3 -m pytest
+  - python3 -m pytest --cov=.
+
+after_success:
+    coveralls
+
 
