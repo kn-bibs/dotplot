@@ -1,5 +1,5 @@
 # Dotplot
-[![Code Climate](https://codeclimate.com/github/kn-bibs/dotplot/badges/gpa.svg)](https://codeclimate.com/github/kn-bibs/dotplot) [![Test Coverage](https://codeclimate.com/github/kn-bibs/dotplot/badges/coverage.svg)](https://codeclimate.com/github/kn-bibs/dotplot/coverage)
+[![Code Climate](https://codeclimate.com/github/kn-bibs/dotplot/badges/gpa.svg)](https://codeclimate.com/github/kn-bibs/dotplot) [![Test Coverage](https://codeclimate.com/github/kn-bibs/dotplot/badges/coverage.svg)](https://codeclimate.com/github/kn-bibs/dotplot/coverage) [![Build Status](https://travis-ci.org/kn-bibs/dotplot.svg?branch=master)](https://travis-ci.org/kn-bibs/dotplot)
 
 
 ## Idea
