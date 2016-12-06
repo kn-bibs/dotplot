@@ -9,14 +9,14 @@ class Plotter(object):
                 dotplot matrix for two analysed sequences.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, arguments):
         """Inits Plotter with empty dotmatrix."""
         self.dotmatrix = []
 
+        self.window_size = arguments.window_size
+
         # temporary values
-        self.window_size = 3
-        self.stringency = 2
-        self.scores = {}
+        self.stringency = None
 
     def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.
@@ -26,7 +26,27 @@ class Plotter(object):
                 tuple of Sequene objects with sequences to analyse
 
         Returns:
-            A list of lists of ints (matrix-like)
+            A list of lists of numbers (representing a matrix)
+        """
+
+        if self.window_size == 1:
+            matrix = self.make_binary_plot(sequences)
+        else:
+            matrix = self.make_windowed_plot(sequences)
+
+        self.dotmatrix = matrix
+
+        return matrix
+
+    def make_binary_plot(self, sequences):
+        """Creates dotplot matrix for given sequences.
+
+        Args:
+            sequences: (Sequence, Sequence):
+                tuple of Sequene objects with sequences to analyse
+
+        Returns:
+            A list of lists of ints (representing a matrix)
                 representing dotplot matrix for the sequences:
                 1 in places where corresponding letters agree,
                 0 in places where corresponding letters do not agree.
@@ -45,13 +65,17 @@ class Plotter(object):
         seq1 = sequences[0].sequence
         seq2 = sequences[1].sequence
 
+        dotmatrix = []
+
         for row_index, vertical_letter in enumerate(seq1):
-            self.dotmatrix.append([])
+            dotmatrix.append([])
             for horizontal_letter in seq2:
                 if horizontal_letter == vertical_letter:
-                    self.dotmatrix[row_index].append(1)
+                    dotmatrix[row_index].append(1)
                 else:
-                    self.dotmatrix[row_index].append(0)
+                    dotmatrix[row_index].append(0)
+
+        return dotmatrix
 
     def plot(self, sequences):
         self.make_plot(sequences)
@@ -65,7 +89,7 @@ class Plotter(object):
             return 1
         return 0
 
-    def windows_matrix(self, sequences, jump=1):
+    def make_windowed_plot(self, sequences, jump=1):
         """Generate matrix of scores using window sliding techinque.
 
         Partial scores for particular sequence elements will be calculated
@@ -88,7 +112,7 @@ class Plotter(object):
                 - windows not to overlap completely, use jump = window_size
 
         Returns:
-            A list of lists of ints (matrix-like)
+            A list of lists of floats or ints (representing a matrix)
 
             Note that for N x M input (sequences) you will get
             (N - w) // j x (M - w) // j output (where j is jump, w window_size)
