@@ -63,9 +63,9 @@ class Drawer(object):
         subplot.imshow(dot_matrix, cmap='Greys', interpolation='nearest')
         subplot.set_xlabel(sequences[1].name)
         subplot.set_ylabel(sequences[0].name)
-        if len(sequences[0].sequence) < 300:
+        if len(sequences[0].sequence) < 100:
             subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
             subplot.set_yticklabels('a' + sequences[0].sequence)
-        if len(sequences[1].sequence) < 300:
+        if len(sequences[1].sequence) < 100:
             subplot.xaxis.set_major_locator(ticker.MultipleLocator(1))
             subplot.set_xticklabels('a' + sequences[1].sequence)
