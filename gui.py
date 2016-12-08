@@ -221,8 +221,18 @@ class MainWindow(QMainWindow):
             statusTip='More about this app', triggered=self.about
         )
 
+        action_tutorial = QAction(
+            '&Tutorial', self,
+            statusTip='Here should be your tutorial', triggered=self.tutorial
+        )
+
         help_menu = menu_bar.addMenu('&Help')
         help_menu.addAction(action_about)
+        help_menu.addAction(action_tutorial)
+
+        
+
+
 
     def about(self):
         """Show modal window with description of this program."""
@@ -233,6 +243,13 @@ class MainWindow(QMainWindow):
             'Unfortunately most of these programs was created long time ago and written '
             'in old versions of Java. <p>This Python3 package will allow new generations '
             'of bioinformaticians to generate dotplots much easier.</p>')
+            
+    def tutorial(self):
+        """Show modal window with tutorial."""
+        QMessageBox.about(
+            self,
+            'Tutorial',
+            'Tu bedzie tutorail')
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
