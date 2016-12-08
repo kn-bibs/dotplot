@@ -254,7 +254,9 @@ class MainWindow(QMainWindow):
         QMessageBox.about(
             self,
             'Tutorial',
-            'Tu bedzie tutorail')
+            'Microsatellites (2-5 base pairs) and minisatellies (10-50 base pairs), repeted 10-50 times are highly mutable genome regions of low complexity; they are present in telomeres. '
+            'They are used in researching <s>similarity</s> between genomes. <p> Any longer section suggests a least some local similarity of studied structures. '
+            'If we observe many indel regions, inversions, dotted lines while comparing sequences of two organisms, it suggests that they are related. </p>')
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
