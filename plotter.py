@@ -1,6 +1,5 @@
 """Plotter creates the matrix that is later displayed."""
-from matrices import read_matrix
-from matrices import read_pair
+from matrices import SimilarityMatrix
 
 
 class Plotter(object):
@@ -17,10 +16,14 @@ class Plotter(object):
 
         self.window_size = arguments.window_size
 
+        self.similarity_matrix = None
+
+        matrix_name = arguments.matrix
+        if matrix_name:
+            self.similarity_matrix = SimilarityMatrix(matrix_name)
+
         # temporary values
         self.stringency = None
-        self.matrix_name = 'pam120'
-        self.similarity_matrix = read_matrix(self.matrix_name)
 
     def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.
@@ -87,7 +90,7 @@ class Plotter(object):
 
     def get_score(self, first, second):
         if self.similarity_matrix:
-            return read_pair(self.similarity_matrix, first, second)
+            return self.similarity_matrix.get_value(first, second)
         else:
             if first == second:
                 return 1
