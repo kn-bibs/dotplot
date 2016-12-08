@@ -98,6 +98,23 @@ class MainWindow(QMainWindow):
 
         return selected_file_data
 
+    def select_save_file_dialog(self):
+        """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
+        extensions = {'PNG file (*.png)': '.png', 'PDF file (*.pdf)': '.pdf',
+                      'SVG files (*.svg, *.svgz)': '.svg', 'All files (*)': ''}
+        extensions_string = ';;'.join(extensions.keys())
+        file_data = QFileDialog.getSaveFileName(
+            self,
+            'Choose a directory',
+            '',  extensions_string,
+            None,
+            QFileDialog.DontUseNativeDialog)
+        file_name = file_data[0]
+        extension = extensions[file_data[1]]
+        if extension not in file_name and '.'  not in file_name:
+            file_name += extension
+        self.canvas.save_file(file_name)
+
     def create_sequence_selector(self, seq_id):
         """Creates and handles widgets for a file selection."""
         from PyQt5.QtWidgets import QToolButton
@@ -191,6 +208,8 @@ class MainWindow(QMainWindow):
         Currently TextEdit is used - only temporarily ;)
         """
         self.canvas_box = QVBoxLayout()
+        savebutton = QPushButton('Save plot to file')
+        savebutton.clicked.connect(self.select_save_file_dialog)
 
         if self.use_matplotlib:
             from figures_plot import MyFigure
@@ -205,6 +224,7 @@ class MainWindow(QMainWindow):
             self.canvas = text_area
 
         self.canvas_box.addWidget(self.canvas)
+        self.canvas_box.addWidget(savebutton)
 
         return self.canvas_box
 
@@ -263,7 +283,7 @@ class MainWindow(QMainWindow):
 
         if self.use_matplotlib:
             self.canvas.reset()
-            dotplot.draw(self.canvas.main_plot)
+            dotplot.draw(self.canvas.main_plot, self.sequences)
             self.canvas.draw()
         else:
             plot_text = dotplot.draw()
