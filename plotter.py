@@ -1,4 +1,6 @@
 """Plotter creates the matrix that is later displayed."""
+from matrices import read_matrix
+from matrices import read_pair
 
 
 class Plotter(object):
@@ -17,6 +19,8 @@ class Plotter(object):
 
         # temporary values
         self.stringency = None
+        self.matrix_name = 'pam120'
+        self.similarity_matrix = read_matrix(self.matrix_name)
 
     def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.
@@ -81,13 +85,13 @@ class Plotter(object):
         self.make_plot(sequences)
         return self.dotmatrix
 
-    @staticmethod
-    def get_score(first, second):
-        # Template for function that returns score of two compared symbols
-        # TODO create scoring matrix
-        if first == second:
-            return 1
-        return 0
+    def get_score(self, first, second):
+        if self.similarity_matrix:
+            return read_pair(self.similarity_matrix, first, second)
+        else:
+            if first == second:
+                return 1
+            return 0
 
     def make_windowed_plot(self, sequences, jump=1):
         """Generate matrix of scores using window sliding techinque.
