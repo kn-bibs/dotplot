@@ -109,6 +109,17 @@ class ArgumentParser(object):
             )
         )
 
+        # stringency
+        self.plotter.add_argument(
+            '--stringency',
+            dest='plotter.stringency',
+            type=positive_int,
+            default=None,
+            help=(
+                'Choose stringency. Defaults to none.'
+            )
+        )
+
         # sequences - local
         self.sequences.add_argument(
             '--fasta',

@@ -16,7 +16,7 @@ class Plotter(object):
         self.window_size = arguments.window_size
 
         # temporary values
-        self.stringency = None
+        self.stringency = arguments.stringency
 
     def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.
