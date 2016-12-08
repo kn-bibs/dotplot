@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
-import matplotlib as mpl
 from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
@@ -42,14 +41,12 @@ class MainWindow(QMainWindow):
         canvas_box = self.create_canvas()
         sequence_form = self.create_sequence_form()
 
-
         # let's have the sequence form over the canvas.
         vbox = QVBoxLayout()
         vbox.addLayout(sequence_form, stretch=0)
         vbox.setAlignment(Qt.AlignTop)
 
         vbox.addLayout(canvas_box, stretch=1)
-
 
         interior = QWidget()
         interior.setLayout(vbox)
@@ -103,15 +100,20 @@ class MainWindow(QMainWindow):
 
     def select_save_file_dialog(self):
         """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
+        extensions = {'PNG file (*.png)': '.png', 'PDF file (*.pdf)': '.pdf',
+                      'SVG files (*.svg, *.svgz)': '.svg', 'All files (*)': ''}
+        extensions_string = ';;'.join(extensions.keys())
         file_data = QFileDialog.getSaveFileName(
             self,
             'Choose a directory',
-            '',  # use the last (or default) directory. It HAS to be str
-            'PNG file (*.png);;PDF file (*.pdf);;SVG files (*.svg, *.svgz);;All files (*)',
+            '',  extensions_string,
             None,
-            QFileDialog.DontUseNativeDialog
-        )
-        self.canvas.save_file(file_data)
+            QFileDialog.DontUseNativeDialog)
+        file_name = file_data[0]
+        extension = extensions[file_data[1]]
+        if extension not in file_name and '.'  not in file_name:
+            file_name += extension
+        self.canvas.save_file(file_name)
 
     def create_sequence_selector(self, seq_id):
         """Creates and handles widgets for a file selection."""
