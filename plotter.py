@@ -9,24 +9,44 @@ class Plotter(object):
                 dotplot matrix for two analysed sequences.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, arguments):
         """Inits Plotter with empty dotmatrix."""
         self.dotmatrix = []
 
+        self.window_size = arguments.window_size
+
         # temporary values
-        self.window_size = 3
-        self.stringency = 2
-        self.scores = {}
+        self.stringency = None
 
     def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.
 
         Args:
-            sequences - (Sequence, Sequence): tuple of strings
-                representing sequences to analyse.
+            sequences: (Sequence, Sequence):
+                tuple of Sequene objects with sequences to analyse
 
         Returns:
-            A list of lists of ints (matrix-like)
+            A list of lists of numbers (representing a matrix)
+        """
+
+        if self.window_size == 1:
+            matrix = self.make_binary_plot(sequences)
+        else:
+            matrix = self.make_windowed_plot(sequences)
+
+        self.dotmatrix = matrix
+
+        return matrix
+
+    def make_binary_plot(self, sequences):
+        """Creates dotplot matrix for given sequences.
+
+        Args:
+            sequences: (Sequence, Sequence):
+                tuple of Sequene objects with sequences to analyse
+
+        Returns:
+            A list of lists of ints (representing a matrix)
                 representing dotplot matrix for the sequences:
                 1 in places where corresponding letters agree,
                 0 in places where corresponding letters do not agree.
@@ -45,55 +65,187 @@ class Plotter(object):
         seq1 = sequences[0].sequence
         seq2 = sequences[1].sequence
 
+        dotmatrix = []
+
         for row_index, vertical_letter in enumerate(seq1):
-            self.dotmatrix.append([])
+            dotmatrix.append([])
             for horizontal_letter in seq2:
                 if horizontal_letter == vertical_letter:
-                    self.dotmatrix[row_index].append(1)
+                    dotmatrix[row_index].append(1)
                 else:
-                    self.dotmatrix[row_index].append(0)
+                    dotmatrix[row_index].append(0)
+
+        return dotmatrix
 
     def plot(self, sequences):
         self.make_plot(sequences)
         return self.dotmatrix
 
-    def get_score(self, first, second):
+    @staticmethod
+    def get_score(first, second):
         # Template for function that returns score of two compared symbols
         # TODO create scoring matrix
         if first == second:
             return 1
         return 0
 
-    def windows_matrix(self, sequences):
-        # chyba dziala, ale i tak trzeba to poprawic
+    def make_windowed_plot(self, sequences, jump=1):
+        """Generate matrix of scores using window sliding techinque.
+
+        Partial scores for particular sequence elements will be calculated
+        using `get_score` method.
+
+        Sum of partial scores from all cells belonging to given window will
+        then decide about the value/score of this window:
+            if `self.stringency` is set it will be one if score is higher than
+            specified stringency otherwise zero; if stringency is not given the
+            score divided by count of window cells (percentage) will be used.
+
+        `self.window_size` defines size of the window.
+
+        Args:
+            sequences: (Sequence, Sequence):
+                tuple of Sequene objects with sequences to analyse
+
+            jump: how wide should each jump of the window be? If you want:
+                - to slide smoothly step-by-step, leave it equal to one
+                - windows not to overlap completely, use jump = window_size
+
+        Returns:
+            A list of lists of floats or ints (representing a matrix)
+
+            Note that for N x M input (sequences) you will get
+            (N - w) // j x (M - w) // j output (where j is jump, w window_size)
+        """
         seq1 = sequences[0].sequence
         seq2 = sequences[1].sequence
 
+        if not seq1 or not seq2:
+            return [[]]
+
+        window_size = self.window_size
+
+        shortest_seq_len = min(len(seq1), len(seq2))
+        if shortest_seq_len < window_size:
+            window_size = shortest_seq_len
+
+        # a matrix of scores indexed by [row][column] convention
         scores = [[]]
+
+        # score in a current window
         current_score = 0
 
-        for i in range(self.window_size):
-            for j in range(self.window_size):
+        # calculate score for the first, left-top window.
+        # for window_size = 2 it would refer to following cells:
+        # |XX     |
+        # |XX     |
+        # |       |
+        for i in range(window_size):
+            for j in range(window_size):
                 current_score += self.get_score(seq1[i], seq2[j])
-        if current_score > self.stringency:
-            scores[-1].append(1)
-        else:
-            scores[-1].append(0)
 
-        for row in range(len(seq1) - self.window_size):
-            for col in range(len(seq2) - self.window_size):
-                for i in range(self.window_size):
-                    current_score -= self.get_score(seq1[row+i], seq2[col])
-                    current_score += self.get_score(seq1[row+i],
-                                                    seq2[col + self.window_size])
-                if current_score > self.stringency:
-                    scores[-1].append(1)
-                else:
-                    scores[-1].append(0)
+        self.append_to_scores(current_score, scores)
+
+        sliding_steps_down = (len(seq1) - window_size) // jump
+        sliding_steps_right = (len(seq2) - window_size) // jump
+
+        def slide_right(row):
+            """Slide window over a row in the sequence matrix to right and
+            save obtained scores.
+
+            Function moves window x positions right (where x is a jump size),
+            recalculates `current_score` (removing partial scores from cells
+            which are no longer in windows view, adding partial scores from
+            cells just discovered) and appends it to the last row of window's
+            scores matrix.
+
+            As the function does not starts but only elongates the list of
+            windows' scores (like RNA polymerase II), it requires the
+            last row of scores matrix to have length equal to one.
+            """
+            nonlocal current_score
+
+            assert len(scores[-1]) == 1
+
+            for col in range(sliding_steps_right):
+
+                # for each cell in height of the window
+                for h in range(window_size):
+
+                    # remove partial scores from those cells which we are no
+                    # longer interested in (which will be left on the left
+                    # to the window)
+                    # and add partial scores of those cells which are to the
+                    # right of our window, by extend of the specified jump.
+                    for w in range(jump):
+                        current_score -= self.get_score(
+                            seq1[row + h], seq2[col + w]
+                        )
+                        current_score += self.get_score(
+                            seq1[row + h], seq2[col + w + window_size]
+                        )
+
+                # we moved the window one jump right; let's remember score here
+                self.append_to_scores(current_score, scores)
+
+        # we need to have this initialized (for later use)
+        row = -1
+
+        # slide window, jump by jump to the right (by columns)
+        # and then jump down and repeat
+        for row in range(sliding_steps_down):
+            slide_right(row)
+
+            # get a score of the leftmost window from the recently laid layer
+            # |XXXXXXXXXX|      X - we already visited those cells
+            # |**XXXXXXXX|      * - also visited, the score of window covering
+            # |**XXXXXXXX|          those cells will be used as current
+            # |          |
             current_score = scores[-1][0]
-            for i in range(self.window_size):
-                current_score -= self.get_score(seq1[row], seq2[i])
-                current_score += self.get_score(seq1[row + self.window_size],
-                                                seq2[i])
+
+            # move the window down by one jump, so for jump = 1 we end up with:
+            # |XXXXXXXXXX|
+            # |XXXXXXXXXX|
+            # |**XXXXXXXX|
+            # |**        |
+            for w in range(window_size):
+                for h in range(jump):
+                    current_score -= self.get_score(
+                        seq1[row + h], seq2[w]
+                    )
+                    current_score += self.get_score(
+                        seq1[row + h + window_size], seq2[w]
+                    )
+
+            # begin next layer (row) of windows' scores (seq row != window row)
             scores.append([])
-        return scores[:-1]
+            self.append_to_scores(current_score, scores)
+
+        # fill in the last scores' row, sliding the window over
+        # corresponding sequence cells
+        slide_right(row + 1)
+
+        if self.stringency is None:
+            self.normalize_scores_to_percentage(scores)
+        else:
+            self.apply_stringency(scores)
+
+        return scores
+
+    @staticmethod
+    def append_to_scores(current_score, scores):
+        """Append new score to the last (current) row in scores matrix."""
+        scores[-1].append(current_score)
+
+    def apply_stringency(self, scores):
+        """Modify input matrix: place ones if value >= stringenccy, else 0."""
+        for row in scores:
+            for i, value in enumerate(row):
+                row[i] = 1 if value >= self.stringency else 0
+
+    def normalize_scores_to_percentage(self, scores):
+        """Modify input matrix: divide each value by field of the window."""
+        window_field = pow(self.window_size, 2)
+        for row in scores:
+            for i, value in enumerate(row):
+                row[i] = value / window_field
