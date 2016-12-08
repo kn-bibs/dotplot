@@ -102,18 +102,15 @@ class MainWindow(QMainWindow):
         return selected_file_data
 
     def select_save_file_dialog(self):
-        selected_file_data = QFileDialog.getSaveFileName(
+        """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
+        file_data = QFileDialog.getSaveFileName(
             self,
             'Choose a directory',
             '',  # use the last (or default) directory. It HAS to be str
-            'PNG file (*.png);;PDF file (*.pdf);;All files (*)',
+            'PNG file (*.png);;PDF file (*.pdf);;SVG files (*.svg, *.svgz);;All files (*)',
             None,
             QFileDialog.DontUseNativeDialog
         )
-        self.save_file(selected_file_data)
-
-    def save_file(self, file_data):
-        """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
         self.canvas.save_file(file_data)
 
     def create_sequence_selector(self, seq_id):
