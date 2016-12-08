@@ -31,9 +31,8 @@ class Chooser(QDialog):
         give_id = QLabel('Enter sequence ID')
         self.id_input = QLineEdit(self)
         self.id_input.setPlaceholderText('Sequence ID')
-        #download = QPushButton('Download', self)
-        #download.clicked.connect(self.download)
 
+        self.ncbi.toggle()
         vbox = QVBoxLayout()
         vbox.addWidget(label_database)
 
@@ -55,30 +54,30 @@ class Chooser(QDialog):
         self.setWindowTitle('Choose database')
         #self.show()
 
+    def accept(self):
+        sequence_id = self.id_input.text()
+        if sequence_id:
+            super().accept()
+        self.label_error.setText("<font color='red'>No sequence ID entered.</font>")
+
     def get_state(self):
         sequence_id = self.id_input.text()
-
-        if not sequence_id:
-            self.label_error.setText('Enter sequence ID')
-            return False
-
         database = self.get_database()
 
-        if not database:
-            self.label_error.setText('No database is selected')
-
+        return database, sequence_id
+    """
         try:
             return database, sequence_id
         except UnboundLocalError:
-            return False
+            return False"""
 
     def get_database(self):
         if self.ncbi.isChecked():
             return 'ncbi'
         elif self.uniprot.isChecked():
-            return  'uniprot'
+            return 'uniprot'
         elif self.ensembl.isChecked():
-            return  'ensembl'
+            return 'ensembl'
 
     def set_hint(self):
         placeholders = {

@@ -3,6 +3,7 @@
 import requests
 import os
 
+
 class DownloadFailed(Exception):
     """Generic excpetions used for catching sequence fetching failures."""
 
@@ -80,7 +81,10 @@ class Sequence(object):
             if line[0].isalpha():
                 sequence += line.strip()
             else:
-                print("More than one sequence found in the file: " + str(fastafile.name))
+                print(
+                    "More than one sequence found in the file: ",
+                    str(fastafile.name)
+                )
                 break
         return sequence
 
@@ -143,16 +147,31 @@ class Sequence(object):
     @staticmethod
     def get_sequence(address, seq_id):
         """
-        Tries 3 times to download a sequence from given address, raises exception
-        if download fails. Returns sequence and its name as strings.
+        Attemtps to download a sequence from given address 3 times,
+        raises exception if download fails.
+
+        Returns:
+            tuple of strings: sequence, name of the sequence
+
+        Raises:
+            DownloadFailed:
+                if network error occurrs or sequence/server is not available
         """
         ask = False
         i = 0
-        while i < 3 and not ask:
-            ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
-            i += 1
-            if not ask:
-                print("Download failed. Trying again.")
+        try:
+            while i < 3 and not ask:
+                ask = requests.get(
+                    address,
+                    headers={"Content-Type": "text/x-fasta"}
+                )
+                i += 1
+                if not ask:
+                    print("Download failed. Trying again.")
+        except requests.ConnectionError:
+            raise DownloadFailed(
+                "Failed to download the sequence %s: connection error." % seq_id
+            )
         if not ask:
             raise DownloadFailed(
                 "After 3 attempts, download of %s sequence failed." % seq_id
