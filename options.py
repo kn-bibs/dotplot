@@ -1,65 +1,74 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QSpinBox
 from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtWidgets import QSplitter
-
-
-class Register(type):
-
-    def __init__(cls, name, bases, attrs):
-
-        super().__init__(name, bases, attrs)
-
-        if not hasattr(cls, 'register'):
-            cls.register = set()
-
-        cls.register.add(cls)
-        cls.register -= set(bases)
-
-
-class Option(metaclass=Register):
-
-    def __init__(self, controls_layout):
-
-        label = QLabel(self.name)
-        layout = QVBoxLayout()
-        layout.addWidget(label)
-        layout.addLayout(controls_layout)
-        self.widget = QWidget()
-        self.widget.setLayout(layout)
-
-    @property
-    def name(self):
-        return NotImplementedError
+from PyQt5.QtWidgets import QComboBox
+from helpers import Option
+from helpers import event
 
 
 class WindowSize(Option):
 
     name = 'Window size'
+    target = 'plotter.window_size'
 
     def __init__(self, args):
+        super().__init__(args)
 
-        value = args.plotter.window_size
+        spinner = QSpinBox()
+        spinner.setMinimum(1)
+        spinner.setMaximum(1000)
 
-        btn = QPushButton(value)
-        vbox = QVBoxLayout()
-        vbox.addWidget(btn)
+        # Note: pylint cannot integrate well with qt
+        spinner.valueChanged[int].connect(event(self, 'on_change'))
+        self.spinner = spinner
+        self.layout.addWidget(spinner)
 
-        super().__init__(vbox)
+        self.update()
+
+    def update(self):
+        self.spinner.setValue(self.value)
+
+    def on_change(self, value):
+        self.value = value
+
+
+class Matrix(Option):
+
+    name = 'Similarity matrix'
+    target = 'plotter.matrix'
+    choices = ['PAM120', 'None']
+
+    def __init__(self, args):
+        super().__init__(args)
+
+        combo = QComboBox()
+        combo.addItems(self.choices)
+        combo.activated[str].connect(event(self, 'on_change'))
+        self.combo = combo
+        self.layout.addWidget(combo)
+        self.update()
+
+    def update(self):
+        self.combo.setCurrentText(str(self.value))
+
+    def on_change(self, value):
+        if value == 'None':
+            value = None
+        self.value = value
 
 
 class OptionPanel(QVBoxLayout):
+    """Layout containing option widgets.
+
+    It reflects changes specified by the user directly in the given `args`
+    object (which is expected to be a NestedNamespace).
+    """
 
     def __init__(self, args):
         super().__init__()
+        self.setAlignment(Qt.AlignTop)
 
+        # Note: pylint cannot understand magic of metaclasses
         for option_constructor in Option.register:
             option = option_constructor(args)
             self.addWidget(option.widget)

@@ -290,21 +290,6 @@ class MainWindow(QMainWindow):
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
 
-        plot_text = dotplot.drawer.make_unicode(dotplot.plot)
-        geometry = self.frameGeometry()
-        height = geometry.height() - 100
-        width = geometry.width() - 100
-        size = round(
-            min(
-                width / len(self.sequences[0]) * 2,
-                height / len(self.sequences[1])
-            ) / 2
-        )
-        if size == 0:
-            size = 1
-        self.canvas.setStyleSheet('font-size:%spx' % size)
-        self.canvas.setText(plot_text)
-
         if self.use_matplotlib:
             self.canvas.reset()
             dotplot.draw(self.canvas.main_plot, self.sequences)
