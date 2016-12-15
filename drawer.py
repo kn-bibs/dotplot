@@ -51,6 +51,12 @@ class Drawer(object):
             for element in row:
                 if element == 1:
                     drawings += u'\u2588'
+                elif element >= 0.75:
+                    drawings += u'\u2593'
+                elif element >= 0.5:
+                    drawings += u'\u2592'
+                elif element >= 0.25:
+                    drawings += u'\u2591'
                 else:
                     drawings += u'\u0020'
             drawings += u'\u2551' + '\n'
@@ -60,6 +66,13 @@ class Drawer(object):
         return drawings
 
     def make_matplotlib(self, dot_matrix, subplot, sequences):
+        """Generate plot using matplotlib.
+
+        Args:
+            dot_matrix - (list): list of lists representing a dotplot matrix
+            subplot - AxesSubplot object
+            sequences - list of two objects Sequence being plotted
+        """
         subplot.imshow(dot_matrix, cmap='Greys', interpolation='nearest')
         subplot.set_xlabel(sequences[1].name)
         subplot.set_ylabel(sequences[0].name)
