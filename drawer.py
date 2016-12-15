@@ -1,35 +1,47 @@
+import matplotlib.ticker as ticker
+
 class Drawer(object):
     """Creates a Drawer object"""
+
+    default_method = 'unicode'
 
     def __init__(self, arguments):
         """Creates a Drawer object that is using a given drawing method"""
         # TODO: write an accurate docstring
         # TODO: exceptions
-        if not hasattr(arguments, 'mode'):
-            self.draw = self.draw_unicode
-        else:
-            drawing_methods = {
-                'unicode': self.draw_unicode,
-                'ascii': self.draw_ascii
-            }
-            self.draw = drawing_methods[arguments.mode]
 
-    def draw_ascii(self, dot_matrix):
-        """Prints an ASCII representation of dotmatrix
+        self.drawing_methods = {
+            'unicode': self.make_unicode,
+            'ascii': self.make_ascii,
+            'matplotlib': self.make_matplotlib
+        }
+
+        method = arguments.get('method', self.default_method)
+
+        self.draw = self.drawing_methods[method]
+
+    def make_ascii(self, dot_matrix):
+        """Generate an ASCII representation of dotmatrix
 
         Args:
             dot_matrix - (list): list of lists representing a dotplot matrix
         """
+        drawings = ''
         for row in dot_matrix:
             for element in row:
                 if element == 1:
-                    print('\x20', end='')
+                    drawings += '\x58'
                 else:
-                    print('\x58', end='')
-            print('')
+                    drawings += '\x20'
+            drawings += '\n'
+        return drawings
 
     def make_unicode(self, dot_matrix):
-        """Generate Unicode representation of dotmatrix."""
+        """Generate Unicode representation of dotmatrix.
+
+        Args:
+            dot_matrix - (list): list of lists representing a dotplot matrix
+        """
         drawings = ''
         drawings += u'\u2554'                       # left upper corner
         drawings += u'\u2550' * len(dot_matrix[0])  # upper line
@@ -47,11 +59,13 @@ class Drawer(object):
         drawings += u'\u255D' + '\n'                # right lower corner
         return drawings
 
-    def draw_unicode(self, dot_matrix):
-        """Prints an Unicode representation of dotmatrix
-
-        Args:
-            dot_matrix - (list): list of lists representing a dotplot matrix
-        """
-        drawings = self.make_unicode(dot_matrix)
-        print(drawings)
+    def make_matplotlib(self, dot_matrix, subplot, sequences):
+        subplot.imshow(dot_matrix, cmap='Greys', interpolation='nearest')
+        subplot.set_xlabel(sequences[1].name)
+        subplot.set_ylabel(sequences[0].name)
+        if len(sequences[0].sequence) < 100:
+            subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
+            subplot.set_yticklabels('a' + sequences[0].sequence)
+        if len(sequences[1].sequence) < 100:
+            subplot.xaxis.set_major_locator(ticker.MultipleLocator(1))
+            subplot.set_xticklabels('a' + sequences[1].sequence)

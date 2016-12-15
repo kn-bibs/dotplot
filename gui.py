@@ -17,12 +17,13 @@ from options import OptionPanel
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self, args):
         super().__init__()
 
         self.sequences = args.parsed_sequences
         self.args = args
+
+        self.use_matplotlib = args.drawer.method == 'matplotlib'
 
         self.init_ui()
 
@@ -43,13 +44,15 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage('Welcome')
         self.create_menus()
 
-        canvas = self.create_canvas()
+        canvas_box = self.create_canvas()
         sequence_form = self.create_sequence_form()
 
         # let's have the sequence form over the canvas.
         vbox = QVBoxLayout()
-        vbox.addLayout(sequence_form)
-        vbox.addWidget(canvas)
+        vbox.addLayout(sequence_form, stretch=0)
+        vbox.setAlignment(Qt.AlignTop)
+
+        vbox.addLayout(canvas_box, stretch=1)
 
         splitter = QSplitter(Qt.Horizontal)
 
@@ -79,6 +82,7 @@ class MainWindow(QMainWindow):
             return False
 
         # make new dotplot
+        self.statusBar().showMessage('Creating a plot')
         dotplot = Dotplot(
             self.sequences,
             self.args.plotter,
@@ -88,6 +92,7 @@ class MainWindow(QMainWindow):
         dotplot.make_plot()
 
         self.display_plot(dotplot)
+        self.statusBar().showMessage('Plot created successfully')
 
     def select_sequence_dialog(self):
         """Invoke dialog window allowing to choose a sequence file.
@@ -98,11 +103,30 @@ class MainWindow(QMainWindow):
         selected_file_data = QFileDialog.getOpenFileName(
             self,
             'Open file',
-            '',   # use the last (or default) directory. It HAS to be str
-            'Fasta files (*.fa *.fasta);;All files (*)'
+            '',  # use the last (or default) directory. It HAS to be str
+            'Fasta files (*.fa *.fasta);;Plain text file (*.txt);;All files (*)',
+            None,
+            QFileDialog.DontUseNativeDialog
         )
 
         return selected_file_data
+
+    def select_save_file_dialog(self):
+        """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
+        extensions = {'PNG file (*.png)': '.png', 'PDF file (*.pdf)': '.pdf',
+                      'SVG files (*.svg, *.svgz)': '.svg', 'All files (*)': ''}
+        extensions_string = ';;'.join(extensions.keys())
+        file_data = QFileDialog.getSaveFileName(
+            self,
+            'Choose a directory',
+            '',  extensions_string,
+            None,
+            QFileDialog.DontUseNativeDialog)
+        file_name = file_data[0]
+        extension = extensions[file_data[1]]
+        if extension not in file_name and '.'  not in file_name:
+            file_name += extension
+        self.canvas.save_file(file_name)
 
     def create_sequence_selector(self, seq_id):
         """Creates and handles widgets for a file selection."""
@@ -116,32 +140,47 @@ class MainWindow(QMainWindow):
         )
 
         def load_sequence(source, value, name):
+            from os.path import basename
             try:
                 constructor = getattr(Sequence, source)
-                self.sequences[seq_id - 1] = constructor(value)
-
-                current_sequence_indicator.setText(name)
+                sequence = constructor(value)
+                self.sequences[seq_id - 1] = sequence
+                self.statusBar().showMessage('Sequence loaded successfully')
+                current_sequence_indicator.setText(
+                    '%s (%s)' % (sequence.name, basename(name))
+                )
             except DownloadFailed as e:
                 self.statusBar().showMessage(e.message)
 
         def callback_file():
             file_name, file_type = self.select_sequence_dialog()
-            if file_name:
-                file_handle = open(file_name, 'r')
+
+            if not file_name:
+                return
+
+            file_handle = open(file_name, 'r')
+
+            if file_name.endswith('.fa') or file_name.endswith('.fasta'):
                 load_sequence('from_fasta_file', file_handle, file_name)
+            elif file_name.endswith('.txt'):
+                load_sequence('from_text_file', file_handle, file_name)
+            else:
+                self.statusBar().showMessage('Unknown file extension')
+
+            file_handle.close()
 
         def callback_more():
             result = Chooser.choose()
-            if not result:
+            if not result:  # chooser does not guarantee to return a tuple
                 return
             database, sequence_name = result
-            if not sequence_name:
-                return
+            self.statusBar().showMessage('Sequence download in progress')
             load_sequence(
                 'from_' + database,
                 sequence_name,
                 sequence_name + ' (' + database + ')'
             )
+            self.statusBar().showMessage('Sequence downloaded successfully')
 
         select_btn = QPushButton('Select sequence %s' % seq_id)
         select_btn.clicked.connect(callback_file)
@@ -181,14 +220,26 @@ class MainWindow(QMainWindow):
 
         Currently TextEdit is used - only temporarily ;)
         """
-        from PyQt5.QtGui import QFont
-        text_area = QLabel()
-        font = QFont('Monospace', 8, QFont.TypeWriter)
-        text_area.setFont(font)
-        text_area.setAlignment(Qt.AlignCenter)
-        text_area.setStyleSheet('font-family:Monospace,Courier')
-        self.canvas = text_area
-        return self.canvas
+        self.canvas_box = QVBoxLayout()
+        savebutton = QPushButton('Save plot to file')
+        savebutton.clicked.connect(self.select_save_file_dialog)
+
+        if self.use_matplotlib:
+            from figures_plot import MyFigure
+            self.canvas = MyFigure()
+        else:
+            from PyQt5.QtGui import QFont
+            text_area = QLabel()
+            font = QFont('Monospace', 8, QFont.TypeWriter)
+            text_area.setFont(font)
+            text_area.setAlignment(Qt.AlignCenter)
+            text_area.setStyleSheet('font-family:Monospace,Courier')
+            self.canvas = text_area
+
+        self.canvas_box.addWidget(self.canvas)
+        self.canvas_box.addWidget(savebutton)
+
+        return self.canvas_box
 
     def create_menus(self):
         """Create menu entries and appropriate actions."""
@@ -208,18 +259,37 @@ class MainWindow(QMainWindow):
             statusTip='More about this app', triggered=self.about
         )
 
+        action_tutorial = QAction(
+            '&Tutorial', self,
+            statusTip='Here should be your tutorial', triggered=self.tutorial
+        )
+
         help_menu = menu_bar.addMenu('&Help')
         help_menu.addAction(action_about)
+        help_menu.addAction(action_tutorial)
 
     def about(self):
         """Show modal window with description of this program."""
         QMessageBox.about(
             self,
             'About Dotplot',
-            'There are <i>many</i> programs that attempt to create dotplots already. Unfortunately most of these programs was created long time ago and written in old versions of Java. <p>This Python3 package will allow new generations of bioinformaticians to generate dotplots much easier.</p>')
+            'There are <i>many</i> programs that attempt to create dotplots already. '
+            'Unfortunately most of these programs was created long time ago and written '
+            'in old versions of Java. <p>This Python3 package will allow new generations '
+            'of bioinformaticians to generate dotplots much easier.</p>')
+
+    def tutorial(self):
+        """Show modal window with tutorial."""
+        QMessageBox.about(
+            self,
+            'Tutorial',
+            'Microsatellites (2-5 base pairs) and minisatellies (10-50 base pairs), repeted 10-50 times are highly mutable genome regions of low complexity; they are present in telomeres. '
+            'They are used in researching <s>similarity</s> between genomes. <p> Any longer section suggests a least some local similarity of studied structures. '
+            'If we observe many indel regions, inversions, dotted lines while comparing sequences of two organisms, it suggests that they are related. </p>')
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
+
         plot_text = dotplot.drawer.make_unicode(dotplot.plot)
         geometry = self.frameGeometry()
         height = geometry.height() - 100
@@ -234,3 +304,23 @@ class MainWindow(QMainWindow):
             size = 1
         self.canvas.setStyleSheet('font-size:%spx' % size)
         self.canvas.setText(plot_text)
+
+        if self.use_matplotlib:
+            self.canvas.reset()
+            dotplot.draw(self.canvas.main_plot, self.sequences)
+            self.canvas.draw()
+        else:
+            plot_text = dotplot.draw()
+            geometry = self.frameGeometry()
+            height = geometry.height() - 100
+            width = geometry.width() - 100
+            size = round(
+                min(
+                    width / len(self.sequences[0]) * 2,
+                    height / len(self.sequences[1])
+                ) / 2
+            )
+            if size == 0:
+                size = 1
+            self.canvas.setStyleSheet('font-size:%spx' % size)
+            self.canvas.setText(plot_text)

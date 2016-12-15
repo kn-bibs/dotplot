@@ -3,6 +3,7 @@ Parses arguments and performs basic validation.
 """
 import argparse
 from sequence import Sequence
+from drawer import Drawer
 from collections import defaultdict
 
 
@@ -20,12 +21,38 @@ class NestedNamespace(argparse.Namespace):
         else:
             self.__dict__[name] = value
 
+    def get(self, name, default):
+        if '.' in name:
+            # TODO
+            raise NotImplementedError
+        try:
+            return getattr(self, name)
+        except AttributeError:
+            return default
+
+
+def positive_int(string):
+    """Validate given string as a positive integer and return it casted to int.
+
+    Raises:
+        argparse.ArgumentTypeError: when string represents negative int or 0.
+    """
+    value = int(string)
+
+    if value < 1:
+        raise argparse.ArgumentTypeError(
+            '%s is not a positive integer' % string
+        )
+
+    return value
+
 
 class ArgumentParser(object):
     """Parse and interpret arguments."""
     nested_namespace = NestedNamespace()
 
     sequence_sources = [
+        'from_text_file',
         'from_fasta_file',
         'from_ensembl',
         'from_uniprot',
@@ -45,8 +72,64 @@ class ArgumentParser(object):
         """
         self.parser = argparse.ArgumentParser()
 
-        self.sequences = self.parser.add_argument_group('sequences')
+        self.sequences = self.parser.add_argument_group('input sequences')
+        self.drawer = self.parser.add_argument_group('display options')
+        self.plotter = self.parser.add_argument_group('plot generation')
 
+        # general
+        self.parser.add_argument(
+            '--gui',
+            dest='gui',
+            action='store_true',
+            help=(
+                'Run the program in Graphical Interface mode.'
+                ' If specified no additional arguments are required.'
+            )
+        )
+
+        # drawer
+        self.drawer.add_argument(
+            '--drawer',
+            dest='drawer.method',
+            choices=Drawer({}).drawing_methods.keys(),
+            help=(
+                'Choose a drawing method. Defaults to matplotlib in GUI mode'
+                ' and to unicode for console mode.'
+            )
+        )
+
+        # plotter
+        self.plotter.add_argument(
+            '--window_size',
+            dest='plotter.window_size',
+            type=positive_int,
+            default=1,
+            help=(
+                'Choose window size. Defaults to one.'
+            )
+        )
+        self.plotter.add_argument(
+            '--matrix',
+            dest='plotter.matrix',
+            choices=['PAM120', None],
+            default=None,
+            help=(
+                'Choose matrix. By default no matrix is used.'
+            )
+        )
+
+        # stringency
+        self.plotter.add_argument(
+            '--stringency',
+            dest='plotter.stringency',
+            type=positive_int,
+            default=None,
+            help=(
+                'Choose stringency. Defaults to none.'
+            )
+        )
+
+        # sequences - local
         self.sequences.add_argument(
             '--fasta',
             dest='sequences.from_fasta_file',
@@ -56,16 +139,15 @@ class ArgumentParser(object):
             help='Input file(s) in FASTA format'
         )
 
-        self.parser.add_argument(
-            '--gui',
-            dest='gui',
-            action='store_true',
-            help=(
-                'Run the program in Graphical Interface mode.' +
-                ' If specified no additional arguments are required.'
-            )
+        self.sequences.add_argument(
+            '--txt',
+            dest='sequences.from_text_file',
+            metavar='filename',
+            nargs='*',
+            type=argparse.FileType(),
+            help='Input plain file(s) like *.txt'
         )
-
+        # sequences - remote
         self.sequences.add_argument(
             '--ncbi',
             dest='sequences.from_ncbi',
@@ -73,7 +155,7 @@ class ArgumentParser(object):
             nargs='*',
             type=str,
             help=(
-                'Run the program downloading sequences from NCBI database. ' +
+                'Run the program downloading sequences from NCBI database. '
                 'For example: --ncbi NC_000017.11 NC_000071.6'
             )
         )
@@ -84,7 +166,7 @@ class ArgumentParser(object):
             nargs='*',
             type=str,
             help=(
-                'Run the program downloading sequences from Uniprot database. ' +
+                'Run the program downloading sequences from Uniprot database. '
                 'For example: --uniprot P48754 P97929'
             )
         )
@@ -95,13 +177,10 @@ class ArgumentParser(object):
             nargs='*',
             type=str,
             help=(
-                'Run the program downloading sequences from Ensembl database. ' +
+                'Run the program downloading sequences from Ensembl database. '
                 'For example: --ensembl ENSG00000157764 ENSG00000157764'
             )
         )
-        # todo: plotter.window_size (from 1 (possibly to 1000, but better without upper limitation))
-        # todo: plotter.stringency (from 1 to squared window_size)
-        # todo: plotter.matrix (PAM250, BINARY) (use choice)
 
         # todo: drawer.true_char (what char when match)
         # todo: drawer.false_char(what char when mismatch)
@@ -112,9 +191,6 @@ class ArgumentParser(object):
         The first arg will be skipped: we assume that it's the script name.
         """
         args = self.parser.parse_args(arguments[1:], self.nested_namespace)
-        args.plotter = NestedNamespace()
-        args.drawer = NestedNamespace()
-
         args = self.interpret_arguments(args)
 
         return args
@@ -136,6 +212,15 @@ class ArgumentParser(object):
         # if we don't have both files given, then:
         args.parsed_sequences = self.parse_sequences(args.sequences)
 
+        if (
+            args.plotter.stringency and
+            args.plotter.stringency > pow(args.plotter.window_size, 2)
+        ):
+            print(
+                'Warning: stringency is greater than size of window squared'
+                ' what does not make sense'
+            )
+
         if len(args.parsed_sequences) > 2:
             print('Too many sequences given')
 
@@ -144,5 +229,17 @@ class ArgumentParser(object):
             if not args.gui:
                 print('Not enough sequences given - switching to GUI mode')
                 args.gui = True
+
+        # set drawer method to defaults if not set
+        if not args.drawer.method:
+            from dotplot import is_matplotlib_available
+
+            method = 'unicode'
+
+            if args.gui:
+                if is_matplotlib_available():
+                    method = 'matplotlib'
+
+            args.drawer.method = method
 
         return args

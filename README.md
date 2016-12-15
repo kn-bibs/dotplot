@@ -1,5 +1,5 @@
 # Dotplot
-[![Code Climate](https://codeclimate.com/github/kn-bibs/dotplot/badges/gpa.svg)](https://codeclimate.com/github/kn-bibs/dotplot) [![Test Coverage](https://codeclimate.com/github/kn-bibs/dotplot/badges/coverage.svg)](https://codeclimate.com/github/kn-bibs/dotplot/coverage)
+[![Build Status](https://travis-ci.org/kn-bibs/dotplot.svg?branch=master)](https://travis-ci.org/kn-bibs/dotplot) [![Code Climate](https://codeclimate.com/github/kn-bibs/dotplot/badges/gpa.svg)](https://codeclimate.com/github/kn-bibs/dotplot) [![Coverage Status](https://coveralls.io/repos/github/kn-bibs/dotplot/badge.svg)](https://coveralls.io/github/kn-bibs/dotplot) 
 
 
 ## Idea
@@ -17,7 +17,11 @@ git clone https://github.com/kn-bibs/dotplot
 
 To use graphical user interface, you will need to have pyqt5 installed, e.g. with:
 ```python3
-sudo pip3 install pyqt5
+sudo apt-get install python3-pyqt5
+```
+To use matplotlib for drawing, you need to have it installed, e.g. with:
+```bash
+sudo pip3 install matplotlib
 ```
 
 ### Basic usage
@@ -40,6 +44,12 @@ You can also fetch sequences from various sources (at once):
 ./dotplot.py --gui --ncbi NP_001009852 --uniprot P03086
 ```
 
+#### Advanced options
+
+You can set window size to be used in plot creation:
+```bash
+./dotplot.py --fasta 1.fa 2.fa --gui --window_size 2
+```
 
 #### Getting help
 

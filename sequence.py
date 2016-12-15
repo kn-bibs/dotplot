@@ -1,6 +1,7 @@
 """Sequence reads sequence from a fasta file or downloads it from Ensembl."""
 
 import requests
+import os
 
 
 class DownloadFailed(Exception):
@@ -51,6 +52,21 @@ class Sequence(object):
         sequence = cls.read_sequence(fastafile)
         return cls(sequence, name)
 
+    @classmethod
+    def from_text_file(cls, textfile):
+        """Reads .txt file.
+        Saves sequence and its name to attributes sequence and name.
+        Sequence name is the name of the plain text file.
+
+        Args:
+            textfile - text file open for reading.
+        """
+        textfile.seek(0)
+
+        name = getattr(textfile, 'name').split(os.sep)[-1][:-4]
+        sequence = cls.read_sequence(textfile)
+        return cls(sequence, name)
+
     @staticmethod
     def read_sequence(fastafile):
         """
@@ -65,7 +81,10 @@ class Sequence(object):
             if line[0].isalpha():
                 sequence += line.strip()
             else:
-                print("More than one sequence found in the file: " + str(fastafile.name))
+                print(
+                    "More than one sequence found in the file: ",
+                    str(fastafile.name)
+                )
                 break
         return sequence
 
@@ -128,16 +147,31 @@ class Sequence(object):
     @staticmethod
     def get_sequence(address, seq_id):
         """
-        Tries 3 times to download a sequence from given address, raises exception
-        if download fails. Returns sequence and its name as strings.
+        Attemtps to download a sequence from given address 3 times,
+        raises exception if download fails.
+
+        Returns:
+            tuple of strings: sequence, name of the sequence
+
+        Raises:
+            DownloadFailed:
+                if network error occurrs or sequence/server is not available
         """
         ask = False
         i = 0
-        while i < 3 and not ask:
-            ask = requests.get(address, headers={"Content-Type": "text/x-fasta"})
-            i += 1
-            if not ask:
-                print("Download failed. Trying again.")
+        try:
+            while i < 3 and not ask:
+                ask = requests.get(
+                    address,
+                    headers={"Content-Type": "text/x-fasta"}
+                )
+                i += 1
+                if not ask:
+                    print("Download failed. Trying again.")
+        except requests.ConnectionError:
+            raise DownloadFailed(
+                "Failed to download the sequence %s: connection error." % seq_id
+            )
         if not ask:
             raise DownloadFailed(
                 "After 3 attempts, download of %s sequence failed." % seq_id
