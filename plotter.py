@@ -15,15 +15,13 @@ class Plotter(object):
         self.dotmatrix = []
 
         self.window_size = arguments.window_size
+        self.stringency = arguments.stringency
 
         self.similarity_matrix = None
 
         matrix_name = arguments.matrix
         if matrix_name:
             self.similarity_matrix = SimilarityMatrix(matrix_name)
-
-        # temporary values
-        self.stringency = arguments.stringency
 
     def make_plot(self, sequences):
         """Creates dotplot matrix for given sequences.

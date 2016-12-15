@@ -181,7 +181,6 @@ class ArgumentParser(object):
                 'For example: --ensembl ENSG00000157764 ENSG00000157764'
             )
         )
-        # todo: plotter.stringency (from 1 to squared window_size)
 
         # todo: drawer.true_char (what char when match)
         # todo: drawer.false_char(what char when mismatch)
@@ -212,6 +211,15 @@ class ArgumentParser(object):
         """Let's try to be more intelligent and guess what the user wants."""
         # if we don't have both files given, then:
         args.parsed_sequences = self.parse_sequences(args.sequences)
+
+        if (
+            args.plotter.stringency and
+            args.plotter.stringency > pow(args.plotter.window_size, 2)
+        ):
+            print(
+                'Warning: stringency is greater than size of window squared'
+                ' what does not make sense'
+            )
 
         if len(args.parsed_sequences) > 2:
             print('Too many sequences given')
