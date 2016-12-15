@@ -1,3 +1,5 @@
+import matplotlib.ticker as ticker
+
 class Drawer(object):
     """Creates a Drawer object"""
 
@@ -57,6 +59,13 @@ class Drawer(object):
         drawings += u'\u255D' + '\n'                # right lower corner
         return drawings
 
-    def make_matplotlib(self, dot_matrix, subplot):
+    def make_matplotlib(self, dot_matrix, subplot, sequences):
         subplot.imshow(dot_matrix, cmap='Greys', interpolation='nearest')
-
+        subplot.set_xlabel(sequences[1].name)
+        subplot.set_ylabel(sequences[0].name)
+        if len(sequences[0].sequence) < 100:
+            subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
+            subplot.set_yticklabels('a' + sequences[0].sequence)
+        if len(sequences[1].sequence) < 100:
+            subplot.xaxis.set_major_locator(ticker.MultipleLocator(1))
+            subplot.set_xticklabels('a' + sequences[1].sequence)

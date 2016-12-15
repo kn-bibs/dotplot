@@ -1,11 +1,21 @@
 from plotter import Plotter
 from sequence import Sequence
-from argparse import Namespace
+
+
+class DummyNamespace:
+    """This class emulates a namespaces but tolerates unknown names,
+    returning None if asked for a value of one of such unknown variables."""
+
+    def __init__(self, **kwargs):
+        self.data = kwargs
+
+    def __getattr__(self, name):
+        return self.data.get(name, None)
 
 
 def test_window_matrix():
 
-    p = Plotter(Namespace(window_size=3))
+    p = Plotter(DummyNamespace(window_size=3))
     p.stringency = 2
 
     # test case zero:
@@ -54,7 +64,7 @@ def test_window_matrix():
 
 def test_append_to_scores():
 
-    p = Plotter(Namespace(window_size=2))
+    p = Plotter(DummyNamespace(window_size=2))
     scores = [[]]
     p.append_to_scores(5, scores)
     p.append_to_scores(1, scores)
@@ -64,7 +74,7 @@ def test_append_to_scores():
 
 def test_normalize_scores_to_percentage():
 
-    p = Plotter(Namespace(window_size=2))
+    p = Plotter(DummyNamespace(window_size=2))
 
     scores = [
         [1, 3, 0],
@@ -82,7 +92,7 @@ def test_normalize_scores_to_percentage():
 
 def test_apply_stringency():
 
-    p = Plotter(Namespace(window_size=2))
+    p = Plotter(DummyNamespace(window_size=2))
     p.stringency = 3
 
     scores = [

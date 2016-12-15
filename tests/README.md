@@ -5,18 +5,14 @@ To run tests with pytest, type:
 python3 -m pytest
 ```
 
-To checkout coverage, install pytest-cov and run:
+To check coverage run:
 ```bash
 python3 -m pytest --cov=.
 ```
 
-And then:
-
-```bash
-python3 -m pytest --cov=. --cov-config .coveragerc
-```
-
 **Tools installation**
+
+Two python packages are needed: `pytest` (to run the tests) and `pytest-cov` (to check coverage). You can get those with pip:
 
 ```bash
 pip3 install pytest pytest-cov

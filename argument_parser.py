@@ -108,6 +108,15 @@ class ArgumentParser(object):
                 'Choose window size. Defaults to one.'
             )
         )
+        self.plotter.add_argument(
+            '--matrix',
+            dest='plotter.matrix',
+            choices=['PAM120', None],
+            default=None,
+            help=(
+                'Choose matrix. By default no matrix is used.'
+            )
+        )
 
         # stringency
         self.plotter.add_argument(
@@ -173,7 +182,6 @@ class ArgumentParser(object):
             )
         )
         # todo: plotter.stringency (from 1 to squared window_size)
-        # todo: plotter.matrix (BLOSUM, PAM250, BINARY) (use choice)
 
         # todo: drawer.true_char (what char when match)
         # todo: drawer.false_char(what char when mismatch)

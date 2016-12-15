@@ -98,6 +98,23 @@ class MainWindow(QMainWindow):
 
         return selected_file_data
 
+    def select_save_file_dialog(self):
+        """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
+        extensions = {'PNG file (*.png)': '.png', 'PDF file (*.pdf)': '.pdf',
+                      'SVG files (*.svg, *.svgz)': '.svg', 'All files (*)': ''}
+        extensions_string = ';;'.join(extensions.keys())
+        file_data = QFileDialog.getSaveFileName(
+            self,
+            'Choose a directory',
+            '',  extensions_string,
+            None,
+            QFileDialog.DontUseNativeDialog)
+        file_name = file_data[0]
+        extension = extensions[file_data[1]]
+        if extension not in file_name and '.'  not in file_name:
+            file_name += extension
+        self.canvas.save_file(file_name)
+
     def create_sequence_selector(self, seq_id):
         """Creates and handles widgets for a file selection."""
         from PyQt5.QtWidgets import QToolButton
@@ -191,6 +208,8 @@ class MainWindow(QMainWindow):
         Currently TextEdit is used - only temporarily ;)
         """
         self.canvas_box = QVBoxLayout()
+        savebutton = QPushButton('Save plot to file')
+        savebutton.clicked.connect(self.select_save_file_dialog)
 
         if self.use_matplotlib:
             from figures_plot import MyFigure
@@ -205,6 +224,7 @@ class MainWindow(QMainWindow):
             self.canvas = text_area
 
         self.canvas_box.addWidget(self.canvas)
+        self.canvas_box.addWidget(savebutton)
 
         return self.canvas_box
 
@@ -226,8 +246,18 @@ class MainWindow(QMainWindow):
             statusTip='More about this app', triggered=self.about
         )
 
+        action_tutorial = QAction(
+            '&Tutorial', self,
+            statusTip='Here should be your tutorial', triggered=self.tutorial
+        )
+
         help_menu = menu_bar.addMenu('&Help')
         help_menu.addAction(action_about)
+        help_menu.addAction(action_tutorial)
+
+        
+
+
 
     def about(self):
         """Show modal window with description of this program."""
@@ -238,13 +268,22 @@ class MainWindow(QMainWindow):
             'Unfortunately most of these programs was created long time ago and written '
             'in old versions of Java. <p>This Python3 package will allow new generations '
             'of bioinformaticians to generate dotplots much easier.</p>')
+            
+    def tutorial(self):
+        """Show modal window with tutorial."""
+        QMessageBox.about(
+            self,
+            'Tutorial',
+            'Microsatellites (2-5 base pairs) and minisatellies (10-50 base pairs), repeted 10-50 times are highly mutable genome regions of low complexity; they are present in telomeres. '
+            'They are used in researching <s>similarity</s> between genomes. <p> Any longer section suggests a least some local similarity of studied structures. '
+            'If we observe many indel regions, inversions, dotted lines while comparing sequences of two organisms, it suggests that they are related. </p>')
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
 
         if self.use_matplotlib:
             self.canvas.reset()
-            dotplot.draw(self.canvas.main_plot)
+            dotplot.draw(self.canvas.main_plot, self.sequences)
             self.canvas.draw()
         else:
             plot_text = dotplot.draw()

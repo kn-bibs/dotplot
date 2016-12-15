@@ -21,3 +21,7 @@ class MyFigure(FigureCanvas):
         self.fig.clear()
         self.main_plot.clear()
         self.create_main_plot()
+
+    def save_file(self, file_name):
+        """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
+        self.fig.savefig(file_name)
