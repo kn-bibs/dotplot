@@ -8,10 +8,12 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QSplitter
 from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
 from chooser import Chooser
+from options import OptionPanel
 
 
 class MainWindow(QMainWindow):
@@ -29,7 +31,11 @@ class MainWindow(QMainWindow):
 
     def are_sequences_loaded(self):
         """Sequences are correctly loaded if both file handles are not empty"""
-        return len(self.sequences) >= 2 and self.sequences[0] and self.sequences[1]
+        return (
+            len(self.sequences) >= 2 and
+            self.sequences[0] and
+            self.sequences[1]
+        )
 
     def init_ui(self):
         """Initialize all GUI elements and show window."""
@@ -45,9 +51,16 @@ class MainWindow(QMainWindow):
         vbox.addLayout(sequence_form)
         vbox.addWidget(canvas)
 
-        interior = QWidget()
-        interior.setLayout(vbox)
-        self.setCentralWidget(interior)
+        splitter = QSplitter(Qt.Horizontal)
+
+        options = OptionPanel(self.args)
+
+        for layout in [vbox, options]:
+            widget = QWidget()
+            widget.setLayout(layout)
+            splitter.addWidget(widget)
+
+        self.setCentralWidget(splitter)
 
         self.resize(600, 600)
         self.setWindowTitle('Dotplot')
@@ -207,7 +220,6 @@ class MainWindow(QMainWindow):
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
-        from PyQt5.QtGui import QFont
         plot_text = dotplot.drawer.make_unicode(dotplot.plot)
         geometry = self.frameGeometry()
         height = geometry.height() - 100
