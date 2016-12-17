@@ -96,6 +96,16 @@ class ArgumentParser(object):
             )
         )
 
+        self.drawer.add_argument(
+            '--show_sequences',
+            dest='drawer.show_sequences',
+            default=100,
+            help=(
+                'Choose if matplotlib should show sequences on axes. '
+                'True/False or the maximum lenght of a sequence which will be shown.'
+            )
+        )
+
         self.sequences.add_argument(
             '--ncbi',
             dest='sequences.from_ncbi',
