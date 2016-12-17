@@ -74,7 +74,7 @@ def main():
                 import matplotlib.pyplot as pyplot
                 figure = pyplot.figure()
                 main_plot = figure.add_subplot(111)
-                dotplot.draw(main_plot)
+                dotplot.draw(main_plot, args.parsed_sequences)
                 pyplot.show()
         else:
             drawings = dotplot.draw()

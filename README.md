@@ -44,6 +44,12 @@ You can also fetch sequences from various sources (at once):
 ./dotplot.py --gui --ncbi NP_001009852 --uniprot P03086
 ```
 
+#### Advanced options
+
+You can set window size to be used in plot creation:
+```bash
+./dotplot.py --fasta 1.fa 2.fa --gui --window_size 2
+```
 
 #### Getting help
 
