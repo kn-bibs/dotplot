@@ -106,12 +106,15 @@ class MainWindow(QMainWindow):
         file_data = QFileDialog.getSaveFileName(
             self,
             'Choose a directory',
-            '',  extensions_string,
+            '',  # use the last (or default) directory. It HAS to be str
+            extensions_string,
             None,
             QFileDialog.DontUseNativeDialog)
         file_name = file_data[0]
+        if file_name == '':
+            return
         extension = extensions[file_data[1]]
-        if extension not in file_name and '.'  not in file_name:
+        if extension not in file_name and '.' not in file_name:
             file_name += extension
         self.canvas.save_file(file_name)
 
@@ -238,8 +241,14 @@ class MainWindow(QMainWindow):
             statusTip='Exit the application', triggered=self.close
         )
 
+        action_save =  QAction(
+            'Save plot to file', self, shortcut='Ctrl+S',
+            triggered=self.select_save_file_dialog
+        )
+
         file_menu = menu_bar.addMenu('&File')
         file_menu.addAction(action_exit)
+        file_menu.addAction(action_save)
 
         action_about = QAction(
             '&About', self,
