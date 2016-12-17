@@ -87,7 +87,7 @@ class Drawer(object):
             subplot.set_xticklabels('a' + sequences[1].sequence)
         elif self.show_sequence == 'False':
             pass
-        elif if type(self.show_sequence) is int or self.show_sequence.isdigit():
+        elif type(self.show_sequence) is int or self.show_sequence.isdigit():
             length = int(self.show_sequence)
             if len(sequences[0].sequence) < length:
                 subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
