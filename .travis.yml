@@ -1,13 +1,21 @@
 language: python
+sudo: required
+dist: trusty
+
 python:
   - "3.3"
   - "3.4"
   - "3.5"
 
-install:
-  - pip install -r requirements.txt
-  - pip install pytest pytest-cov coveralls
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install python3-pyqt5
 
+install:
+  # fallback to system-wide executables (for PyQt5 Python bindings)
+  - export PATH=$PATH:/usr/bin
+  - pip install -r requirements.txt
+  - pip install pytest pytest-cov pytest-qt coveralls
 
 script:
   - python3 -m pytest

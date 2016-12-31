@@ -58,11 +58,16 @@ class Stringency(Spinner, Option):
         self.spinner.setValue(value)
 
     def on_change(self, value):
-        if value > pow(self.args.plotter.window_size, 2):
-            print('Warning: stringency greater than window size squared')
-        elif value == 0:
-            value = None
-        self.value = value
+
+        maximum = pow(self.args.plotter.window_size, 2)
+
+        if value > maximum:
+            self.value = maximum
+            self.update()
+        else:
+            if value == 0:
+                value = None
+            self.value = value
 
 
 class Matrix(Option):
