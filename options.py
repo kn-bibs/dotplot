@@ -6,29 +6,62 @@ from helpers import Option
 from helpers import event
 
 
-class WindowSize(Option):
+class Spinner(Option):
+    """Helper class defining spinner widget to be used together with Option."""
 
-    name = 'Window size'
-    target = 'plotter.window_size'
+    minimum = 1
+    maximum = 10
 
     def __init__(self, args):
         super().__init__(args)
 
         spinner = QSpinBox()
-        spinner.setMinimum(1)
-        spinner.setMaximum(1000)
+        spinner.setMinimum(self.minimum)
+        spinner.setMaximum(self.maximum)
 
         # Note: pylint cannot integrate well with qt
         spinner.valueChanged[int].connect(event(self, 'on_change'))
         self.spinner = spinner
         self.layout.addWidget(spinner)
 
+
+class WindowSize(Spinner, Option):
+
+    name = 'Window size'
+    target = 'plotter.window_size'
+    maximum = 1000
+
+    def __init__(self, args):
+        super().__init__(args)
         self.update()
 
     def update(self):
         self.spinner.setValue(self.value)
 
     def on_change(self, value):
+        self.value = value
+
+
+class Stringency(Spinner, Option):
+
+    name = 'Stringency'
+    target = 'plotter.stringency'
+    minimum = 0
+    maximum = 1000
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.update()
+
+    def update(self):
+        value = 0 if self.value is None else self.value
+        self.spinner.setValue(value)
+
+    def on_change(self, value):
+        if value > pow(self.args.plotter.window_size, 2):
+            print('Warning: stringency greater than window size squared')
+        elif value == 0:
+            value = None
         self.value = value
 
 
