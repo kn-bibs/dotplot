@@ -18,6 +18,8 @@ class Drawer(object):
 
         method = arguments.get('method', self.default_method)
 
+        self.show_sequence = arguments.get('show_sequences', 100)
+
         self.draw = self.drawing_methods[method]
 
     def make_ascii(self, dot_matrix):
@@ -73,12 +75,25 @@ class Drawer(object):
             subplot - AxesSubplot object
             sequences - list of two objects Sequence being plotted
         """
+
         subplot.imshow(dot_matrix, cmap='Greys', interpolation='nearest')
         subplot.set_xlabel(sequences[1].name)
         subplot.set_ylabel(sequences[0].name)
-        if len(sequences[0].sequence) < 100:
+
+        if self.show_sequence == 'True':
             subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
             subplot.set_yticklabels('a' + sequences[0].sequence)
-        if len(sequences[1].sequence) < 100:
             subplot.xaxis.set_major_locator(ticker.MultipleLocator(1))
             subplot.set_xticklabels('a' + sequences[1].sequence)
+        elif self.show_sequence == 'False':
+            pass
+        elif type(self.show_sequence) is int or self.show_sequence.isdigit():
+            length = int(self.show_sequence)
+            if len(sequences[0].sequence) < length:
+                subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
+                subplot.set_yticklabels('a' + sequences[0].sequence)
+            if len(sequences[1].sequence) < length:
+                subplot.xaxis.set_major_locator(ticker.MultipleLocator(1))
+                subplot.set_xticklabels('a' + sequences[1].sequence)
+        else:
+            raise Exception(self.show_sequence + " is an incorrect value for show_sequence")

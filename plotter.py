@@ -95,6 +95,7 @@ class Plotter(object):
             return 0
 
     def make_windowed_plot(self, sequences, jump=1):
+
         """Generate matrix of scores using window sliding techinque.
 
         Partial scores for particular sequence elements will be calculated
