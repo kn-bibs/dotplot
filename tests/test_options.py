@@ -2,6 +2,11 @@ from options import WindowSize
 from options import Stringency
 from helpers import Option
 from copy import copy
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtTest import QTest
+
+
+app = QApplication.instance()
 
 
 test_args = {
@@ -30,7 +35,7 @@ class DummyNestedNamespace:
         return value
 
 
-def test_option(qtbot):
+def test_option():
 
     class NullOption(Option):
         name = ''
@@ -38,10 +43,10 @@ def test_option(qtbot):
 
     option = NullOption(DummyNestedNamespace({}))
 
-    qtbot.addWidget(option)
+    assert option
 
 
-def test_window_size(qtbot):
+def test_window_size():
 
     args = DummyNestedNamespace(test_args)
 
@@ -60,11 +65,11 @@ def test_window_size(qtbot):
     assert args.plotter.window_size == 1
 
     # let's check if we can add the widget without errors
-    qtbot.addWidget(window_size_option)
-    assert True
+    # qtbot.addWidget(window_size_option)
+    # assert True
 
 
-def test_stringency(qtbot):
+def test_stringency():
 
     raw_args = copy(test_args)
 
@@ -80,5 +85,5 @@ def test_stringency(qtbot):
     assert args.plotter.stringency == 4
 
     # check if we can add the widget without errors
-    qtbot.addWidget(stringency_option)
-    assert True
+    # qtbot.addWidget(stringency_option)
+    # assert True
