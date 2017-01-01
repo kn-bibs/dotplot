@@ -2,11 +2,6 @@ from options import WindowSize
 from options import Stringency
 from helpers import Option
 from copy import copy
-import pytest
-import pytestqt
-import sys
-import traceback
-sys.excepthook = traceback.print_exception
 
 
 test_args = {
