@@ -28,7 +28,7 @@ class DummyNestedNamespace:
             return getattr(value, '.'.join(keys[1:]))
         return value
 
-"""
+
 def test_window_size(qtbot):
 
     args = DummyNestedNamespace(test_args)
@@ -48,9 +48,9 @@ def test_window_size(qtbot):
     assert args.plotter.window_size == 1
 
     # let's check if we can add the widget without errors
-    qtbot.addWidget(window_size_option.widget)
+    qtbot.addWidget(window_size_option)
     assert True
-"""
+
 
 def test_stringency(qtbot):
 
@@ -64,9 +64,9 @@ def test_stringency(qtbot):
     stringency_option = Stringency(args)
 
     # make sure that values greater window_size squared are trimmed
-    #stringency_option.spinner.setValue(10)
-    #assert args.plotter.stringency == 4
+    stringency_option.spinner.setValue(10)
+    assert args.plotter.stringency == 4
 
     # check if we can add the widget without errors
-    #qtbot.addWidget(stringency_option.widget)
+    qtbot.addWidget(stringency_option)
     assert True

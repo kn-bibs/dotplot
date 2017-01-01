@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QLabel
+from sip import wrappertype
 
 
-class Register(type):
+class Register(wrappertype):
     """Metaclass used to register all leaves-classes in hierarchy."""
 
     def __init__(cls, name, bases, attrs):
@@ -17,20 +18,31 @@ class Register(type):
         cls.register -= set(bases)
 
 
-class Option(metaclass=Register):
+class Option(QWidget, metaclass=Register):
     """An abstract class for convenient creation and registration of options."""
 
     def __init__(self, args):
+
+        super().__init__()
+
+        # bind a reference to arguments namespace to an Option instance
         self.args = args
-        self.label = QLabel(self.name)
-        self.inner_layout = QVBoxLayout()
-        self.inner_layout.addWidget(self.label)
-        self.exposed_layout = QVBoxLayout()
-        self.inner_layout.addLayout(self.exposed_layout)
-        self.widget = QWidget()
-        self.widget.setLayout(self.inner_layout)
+
+        # create a path to the targeted option (a list of subsequent keys to
+        # be called in arguments namespace to get or modify targeted argumnet)
         self.target_path = self.target.split('.')
-        self.layout = self.exposed_layout
+
+        # create the GUI for the option widget
+        label = QLabel(self.name)
+
+        container = QVBoxLayout()
+        container.addWidget(label)
+
+        # allocate place for option-specific widgets
+        self.internal_layout = QVBoxLayout()
+        container.addLayout(self.internal_layout)
+
+        self.setLayout(container)
 
     @property
     def name(self):

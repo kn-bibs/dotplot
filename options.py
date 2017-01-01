@@ -22,7 +22,7 @@ class Spinner(Option):
         # Note: pylint cannot integrate well with qt
         spinner.valueChanged[int].connect(event(self, 'on_change'))
         self.spinner = spinner
-        self.layout.addWidget(spinner)
+        self.internal_layout.addWidget(spinner)
 
 
 class WindowSize(Spinner):
@@ -83,7 +83,7 @@ class Matrix(Option):
         combo.addItems(self.choices)
         combo.activated[str].connect(event(self, 'on_change'))
         self.combo = combo
-        self.layout.addWidget(combo)
+        self.internal_layout.addWidget(combo)
         self.update()
 
     def update(self):
@@ -109,4 +109,4 @@ class OptionPanel(QVBoxLayout):
         # Note: pylint cannot understand magic of metaclasses
         for option_constructor in Option.register:
             option = option_constructor(args)
-            self.addWidget(option.widget)
+            self.addWidget(option)
