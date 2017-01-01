@@ -28,9 +28,6 @@ class DummyNestedNamespace:
             return getattr(value, '.'.join(keys[1:]))
         return value
 
-def test_dummy():
-    assert True
-
 """
 def test_window_size(qtbot):
 
@@ -53,6 +50,7 @@ def test_window_size(qtbot):
     # let's check if we can add the widget without errors
     qtbot.addWidget(window_size_option.widget)
     assert True
+"""
 
 def test_stringency(qtbot):
 
@@ -72,4 +70,3 @@ def test_stringency(qtbot):
     # check if we can add the widget without errors
     qtbot.addWidget(stringency_option.widget)
     assert True
-"""
