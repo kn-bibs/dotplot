@@ -1,5 +1,6 @@
 from options import WindowSize
 from options import Stringency
+from helpers import Option
 from copy import copy
 import pytest
 import pytestqt
@@ -32,6 +33,17 @@ class DummyNestedNamespace:
         if len(keys) > 1 and keys[1]:
             return getattr(value, '.'.join(keys[1:]))
         return value
+
+
+def test_option(qtbot):
+
+    class NullOption(Option):
+        name = ''
+        target = ''
+
+    option = NullOption(DummyNestedNamespace({}))
+
+    qtbot.addWidget(option)
 
 
 def test_window_size(qtbot):
