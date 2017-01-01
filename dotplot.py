@@ -5,6 +5,10 @@ from argument_parser import ArgumentParser
 from drawer import Drawer
 from plotter import Plotter
 
+# keep app object in global scope to prevent Python's GC from destroying PyQt
+# objects in wrong order (see: pyqt.sourceforge.net/Docs/PyQt5/gotchas.html)
+application = None
+
 
 class Dotplot(object):
     def __init__(self, sequences, plotter_args=None, drawer_args=None):
@@ -47,9 +51,10 @@ def main():
         if not is_pyqt5_available():
             print('You need to install PyQt5 to use GUI.')
         else:
-
             from PyQt5.QtWidgets import QApplication
             from gui import MainWindow
+
+            global application
 
             # register application
             application = QApplication(sys.argv)
@@ -58,7 +63,7 @@ def main():
             main_window = MainWindow(args)
 
             # after releasing lock by MainWindow, quit gracefully
-            sys.exit(application.exec_())
+            sys.exit(application.exec())
 
     else:
         dotplot = Dotplot(args.parsed_sequences, args.plotter, args.drawer)

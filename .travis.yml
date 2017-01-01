@@ -1,13 +1,13 @@
 language: python
 
 python:
-  - "3.3"
-  - "3.4"
-  - "3.5"
+  # - 3.3   no PyQt5 binaries available for 3.3 & 3.4
+  # - 3.4
+  - 3.5
 
 install:
-  - pip install -r requirements.txt
   - pip install PyQt5
+  - pip install -r requirements.txt
   - pip install pytest pytest-cov pytest-qt coveralls
 
 script:

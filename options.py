@@ -25,7 +25,7 @@ class Spinner(Option):
         self.layout.addWidget(spinner)
 
 
-class WindowSize(Spinner, Option):
+class WindowSize(Spinner):
 
     name = 'Window size'
     target = 'plotter.window_size'
@@ -42,7 +42,7 @@ class WindowSize(Spinner, Option):
         self.value = value
 
 
-class Stringency(Spinner, Option):
+class Stringency(Spinner):
 
     name = 'Stringency'
     target = 'plotter.stringency'
