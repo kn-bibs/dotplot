@@ -22,15 +22,15 @@ class Option(metaclass=Register):
 
     def __init__(self, args):
         self.args = args
-        label = QLabel(self.name)
-        layout = QVBoxLayout()
-        layout.addWidget(label)
-        exposed_layout = QVBoxLayout()
-        layout.addLayout(exposed_layout)
+        self.label = QLabel(self.name)
+        self.inner_layout = QVBoxLayout()
+        self.inner_layout.addWidget(self.label)
+        self.exposed_layout = QVBoxLayout()
+        self.inner_layout.addLayout(self.exposed_layout)
         self.widget = QWidget()
-        self.widget.setLayout(layout)
+        self.widget.setLayout(self.inner_layout)
         self.target_path = self.target.split('.')
-        self.layout = exposed_layout
+        self.layout = self.exposed_layout
 
     @property
     def name(self):
