@@ -13,6 +13,8 @@ install:
   - pip install pytest pytest-cov pytest-qt pytest-logging coveralls
 
 script:
+  - apt-get install gdb python3-dbg
+  - gdb -ex r -ex bt -ex py-bt -ex py-list --args python3 -m pytest
   - python3 -m pytest -v
   - python3 -m pytest -v --cov=.
 
