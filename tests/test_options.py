@@ -5,8 +5,8 @@ from copy import copy
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtTest import QTest
 
-import sys
-app = QApplication(sys.argv)
+
+app = QApplication([])
 
 
 test_args = {
