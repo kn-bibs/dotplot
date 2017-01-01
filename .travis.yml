@@ -14,7 +14,7 @@ install:
 
 script:
   - sudo apt-get install gdb python3-dbg
-  - gdb -ex r -ex bt -ex py-bt -ex py-list 2>&1 --args python3 -m pytest
+  - gdb -batch -ex r -ex bt -ex py-bt -ex py-list 2>&1 --args python3 -m pytest
   - python3 -m pytest -v
   - python3 -m pytest -v --cov=.
 
