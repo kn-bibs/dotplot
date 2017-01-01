@@ -33,9 +33,9 @@ class Option(QWidget, metaclass=Register):
         self.target_path = self.target.split('.')
 
         # create the GUI for the option widget
-        self.label = QLabel(self.name)
-
         self.container = QVBoxLayout()
+
+        self.label = QLabel(self.name, parent=self)
         self.container.addWidget(self.label)
 
         # allocate place for option-specific widgets
