@@ -1,6 +1,7 @@
 from options import WindowSize
 from options import Stringency
 from copy import copy
+import pytest
 import pytestqt
 import sys
 import traceback
