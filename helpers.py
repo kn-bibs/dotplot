@@ -33,16 +33,16 @@ class Option(QWidget, metaclass=Register):
         self.target_path = self.target.split('.')
 
         # create the GUI for the option widget
-        label = QLabel(self.name)
+        self.label = QLabel(self.name)
 
-        container = QVBoxLayout()
-        container.addWidget(label)
+        self.container = QVBoxLayout()
+        self.container.addWidget(self.label)
 
         # allocate place for option-specific widgets
         self.internal_layout = QVBoxLayout()
-        container.addLayout(self.internal_layout)
+        self.container.addLayout(self.internal_layout)
 
-        self.setLayout(container)
+        self.setLayout(self.container)
 
     @property
     def name(self):

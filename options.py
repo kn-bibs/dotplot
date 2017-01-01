@@ -106,7 +106,10 @@ class OptionPanel(QVBoxLayout):
         super().__init__()
         self.setAlignment(Qt.AlignTop)
 
+        self.option_widgets = []
+
         # Note: pylint cannot understand magic of metaclasses
         for option_constructor in Option.register:
             option = option_constructor(args)
             self.addWidget(option)
+            self.option_widgets.append(option)
