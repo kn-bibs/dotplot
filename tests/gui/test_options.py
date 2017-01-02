@@ -1,18 +1,15 @@
 from gui.options import WindowSize
 from gui.options import Stringency
 from gui.helpers import Option
+from gui.options import Matrix
 from copy import copy
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtTest import QTest
-
-
-app = QApplication.instance()
 
 
 test_args = {
     'plotter': {
         'window_size': 1,
-        'stringency': 4
+        'stringency': 4,
+        'matrix': None
     }
 }
 
@@ -35,18 +32,30 @@ class DummyNestedNamespace:
         return value
 
 
-def test_option():
+def test_option(qtbot):
 
+    # check if we can declare and create options
     class NullOption(Option):
         name = ''
         target = ''
 
-    option = NullOption(DummyNestedNamespace({}))
+    option = NullOption(None)
 
     assert option
 
+    # check if registration of option classes works properly
+    class AnotherOption(Option):
+        name = ''
+        target = ''
 
-def test_window_size():
+    # has both option classes (widgets) been registered?
+    assert all(
+        option in Option.register
+        for option in (NullOption, AnotherOption)
+    )
+
+
+def test_window_size(qtbot):
 
     args = DummyNestedNamespace(test_args)
 
@@ -65,11 +74,11 @@ def test_window_size():
     assert args.plotter.window_size == 1
 
     # let's check if we can add the widget without errors
-    # qtbot.addWidget(window_size_option)
-    # assert True
+    qtbot.addWidget(window_size_option)
+    assert True
 
 
-def test_stringency():
+def test_stringency(qtbot):
 
     raw_args = copy(test_args)
 
@@ -85,5 +94,16 @@ def test_stringency():
     assert args.plotter.stringency == 4
 
     # check if we can add the widget without errors
-    # qtbot.addWidget(stringency_option)
-    # assert True
+    qtbot.addWidget(stringency_option)
+    assert True
+
+
+def test_matrix(qtbot):
+
+    args = DummyNestedNamespace(test_args)
+
+    matrix_option = Matrix(args)
+
+    # check changing value in combo changes arguments value:
+    qtbot.keyClicks(matrix_option.combo, 'PAM120')
+    assert args.plotter.matrix == 'PAM120'

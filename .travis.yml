@@ -11,12 +11,20 @@ install:
   - pip install PyQt5
   - pip install -r requirements.txt
   - pip install pytest pytest-cov pytest-qt pytest-logging coveralls
+  # PyQt testing fails when there is no display available. Normally,
+  # in plain Qt one would use "-platform offscreen" on testing tools
+  # although those are not available nor the option to change platform
+  # is exposed in PyQt API. Successful workaround is to create a virtual
+  # framebuffer to be used as a dummy display for testing purposes.
+  - sudo apt-get install xvfb
+  - Xvfb :1 &
 
 script:
-  - python3 -m pytest -v
-  - python3 -m pytest -v --cov=.
+  - DISPLAY=:1 python3 -m pytest -v
+  - DISPLAY=:1 python3 -m pytest -v --cov=.
 
 after_success:
     coveralls
 
-
+after_script:
+    pkill Xvfb
