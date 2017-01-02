@@ -44,8 +44,17 @@ def is_matplotlib_available():
         return False
 
 
-def main():
-    args = ArgumentParser().parse(sys.argv)
+def main(argv):
+    """Main function running dotplot application.
+
+    Args:
+        argv:
+            list of (command-line like) arguments to be parsed by
+            ArgumentParser and used in the program's run. The first
+            argument in the list should be the name of the script.
+    """
+    print(argv)
+    args = ArgumentParser().parse(argv)
 
     if args.gui:
         if not is_pyqt5_available():
@@ -85,6 +94,8 @@ def main():
             drawings = dotplot.draw()
             print(drawings)
 
+    return True
+
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
