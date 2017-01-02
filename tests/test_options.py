@@ -1,5 +1,6 @@
 from options import WindowSize
 from options import Stringency
+from options import Matrix
 from helpers import Option
 from copy import copy
 
@@ -7,7 +8,8 @@ from copy import copy
 test_args = {
     'plotter': {
         'window_size': 1,
-        'stringency': 4
+        'stringency': 4,
+        'matrix': None
     }
 }
 
@@ -32,13 +34,25 @@ class DummyNestedNamespace:
 
 def test_option(qtbot):
 
+    # check if we can declare and create options
     class NullOption(Option):
         name = ''
         target = ''
 
-    option = NullOption(DummyNestedNamespace({}))
+    option = NullOption(None)
 
     assert option
+
+    # check if registration of option classes works properly
+    class AnotherOption(Option):
+        name = ''
+        target = ''
+
+    # has both option classes (widgets) been registered?
+    assert all(
+        option in Option.register
+        for option in (NullOption, AnotherOption)
+    )
 
 
 def test_window_size(qtbot):
@@ -82,3 +96,14 @@ def test_stringency(qtbot):
     # check if we can add the widget without errors
     qtbot.addWidget(stringency_option)
     assert True
+
+
+def test_matrix(qtbot):
+
+    args = DummyNestedNamespace(test_args)
+
+    matrix_option = Matrix(args)
+
+    # check changing value in combo changes arguments value:
+    qtbot.keyClicks(matrix_option.combo, 'PAM120')
+    assert args.plotter.matrix == 'PAM120'
