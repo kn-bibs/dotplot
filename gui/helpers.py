@@ -86,7 +86,7 @@ class Option(QWidget, metaclass=Register):
             )
 
 
-def event(self, name):
+def event(self, name, caller_name=None):
     """This is a big fake. Long story short: this function stays here.
 
     It is not normal to generate dummy closures just to get an address of a
@@ -97,6 +97,9 @@ def event(self, name):
     method = getattr(self, name)
 
     def closure(*args, **kwargs):
+        if caller_name:
+            kwargs['caller_name'] = caller_name
+
         method(*args, **kwargs)
 
     return closure

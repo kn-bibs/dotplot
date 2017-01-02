@@ -1,6 +1,7 @@
 from gui.options import OptionPanel
 from gui.options import WindowSize
 from gui.options import Stringency
+from gui.options import ShowSequence
 from gui.options import Matrix
 from gui.helpers import Option
 from copy import copy
@@ -11,6 +12,9 @@ test_args = {
         'window_size': 1,
         'stringency': 4,
         'matrix': None
+    },
+    'drawer': {
+        'show_sequences': 200
     }
 }
 
@@ -43,7 +47,8 @@ def test_option_panel(qtbot):
     options_expected_in_panel = [
         Matrix,
         WindowSize,
-        Stringency
+        Stringency,
+        ShowSequence
     ]
     options_in_panel = []
 
