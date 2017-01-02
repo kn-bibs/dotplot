@@ -53,7 +53,6 @@ def main(argv):
             ArgumentParser and used in the program's run. The first
             argument in the list should be the name of the script.
     """
-    print(argv)
     args = ArgumentParser().parse(argv)
 
     if args.gui:
