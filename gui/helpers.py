@@ -32,6 +32,9 @@ class Option(QWidget, metaclass=Register):
         # be called in arguments namespace to get or modify targeted argumnet)
         self.target_path = self.target.split('.')
 
+        # will raise ValueError if target is nor accessible
+        self._check_target()
+
         # create the GUI for the option widget
         self.container = QVBoxLayout()
 
@@ -70,6 +73,17 @@ class Option(QWidget, metaclass=Register):
         for name in self.target_path[:-1]:
             args = getattr(args, name)
         setattr(args, self.target_path[-1], value)
+
+    def _check_target(self):
+        """Check if an argument under specified `target` path is accesible."""
+        try:
+            self.value
+        except AttributeError:
+            raise ValueError(
+                'Initialization of "{name}" failed: cannot find an argument'
+                ' specified by target "{target}" in provided args namespace'
+                .format(name=self.name, target=self.target)
+            )
 
 
 def event(self, name):
