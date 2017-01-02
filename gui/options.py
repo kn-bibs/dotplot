@@ -2,8 +2,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSpinBox
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QComboBox
-from helpers import Option
-from helpers import event
+from .helpers import Option
+from .helpers import event
 
 
 class Spinner(Option):
