@@ -1,7 +1,9 @@
-from options import WindowSize
-from options import Stringency
-from options import Matrix
-from helpers import Option
+from gui.options import OptionPanel
+from gui.options import WindowSize
+from gui.options import Stringency
+from gui.options import ShowSequence
+from gui.options import Matrix
+from gui.helpers import Option
 from copy import copy
 
 
@@ -10,6 +12,9 @@ test_args = {
         'window_size': 1,
         'stringency': 4,
         'matrix': None
+    },
+    'drawer': {
+        'show_sequences': 200
     }
 }
 
@@ -32,21 +37,43 @@ class DummyNestedNamespace:
         return value
 
 
+def test_option_panel(qtbot):
+
+    panel = OptionPanel(DummyNestedNamespace(test_args))
+
+    qtbot.addWidget(panel)
+
+    # check if desired options where automatically added to the panel
+    options_expected_in_panel = [
+        Matrix,
+        WindowSize,
+        Stringency,
+        ShowSequence
+    ]
+    options_in_panel = []
+
+    for widget in panel.option_widgets:
+        if type(widget) in options_expected_in_panel:
+            options_in_panel.append(type(widget))
+
+    assert set(options_expected_in_panel) == set(options_in_panel)
+
+
 def test_option(qtbot):
 
     # check if we can declare and create options
     class NullOption(Option):
         name = ''
-        target = ''
+        target = 'x'
 
-    option = NullOption(None)
+    option = NullOption(DummyNestedNamespace({'x': 0}))
 
     assert option
 
     # check if registration of option classes works properly
     class AnotherOption(Option):
         name = ''
-        target = ''
+        target = 'y'
 
     # has both option classes (widgets) been registered?
     assert all(

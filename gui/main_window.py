@@ -12,8 +12,8 @@ from PyQt5.QtWidgets import QSplitter
 from dotplot import Dotplot
 from sequence import DownloadFailed
 from sequence import Sequence
-from chooser import Chooser
-from options import OptionPanel
+from .chooser import Chooser
+from .options import OptionPanel
 
 
 class MainWindow(QMainWindow):

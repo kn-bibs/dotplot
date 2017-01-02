@@ -32,6 +32,9 @@ class Option(QWidget, metaclass=Register):
         # be called in arguments namespace to get or modify targeted argumnet)
         self.target_path = self.target.split('.')
 
+        # will raise ValueError if target is nor accessible
+        self._check_target()
+
         # create the GUI for the option widget
         self.container = QVBoxLayout()
 
@@ -71,8 +74,19 @@ class Option(QWidget, metaclass=Register):
             args = getattr(args, name)
         setattr(args, self.target_path[-1], value)
 
+    def _check_target(self):
+        """Check if an argument under specified `target` path is accesible."""
+        try:
+            self.value
+        except AttributeError:
+            raise ValueError(
+                'Initialization of "{name}" failed: cannot find an argument'
+                ' specified by target "{target}" in provided args namespace'
+                .format(name=self.name, target=self.target)
+            )
 
-def event(self, name):
+
+def event(self, name, caller_name=None):
     """This is a big fake. Long story short: this function stays here.
 
     It is not normal to generate dummy closures just to get an address of a
@@ -83,6 +97,9 @@ def event(self, name):
     method = getattr(self, name)
 
     def closure(*args, **kwargs):
+        if caller_name:
+            kwargs['caller_name'] = caller_name
+
         method(*args, **kwargs)
 
     return closure
