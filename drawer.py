@@ -1,4 +1,4 @@
-import matplotlib.ticker as ticker
+
 
 class Drawer(object):
     """Creates a Drawer object"""
@@ -75,25 +75,42 @@ class Drawer(object):
             subplot - AxesSubplot object
             sequences - list of two objects Sequence being plotted
         """
+        import matplotlib.ticker as ticker
 
         subplot.imshow(dot_matrix, cmap='Greys', interpolation='nearest')
         subplot.set_xlabel(sequences[1].name)
         subplot.set_ylabel(sequences[0].name)
 
-        if self.show_sequence == 'True':
-            subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
-            subplot.set_yticklabels('a' + sequences[0].sequence)
-            subplot.xaxis.set_major_locator(ticker.MultipleLocator(1))
-            subplot.set_xticklabels('a' + sequences[1].sequence)
-        elif self.show_sequence == 'False':
+        def add_sequence_axis(subplot, axis_id, sequence):
+
+            locator = ticker.MultipleLocator(1)
+
+            axis = getattr(subplot, axis_id + 'axis')
+            label_setter = getattr(subplot, 'set_' + axis_id + 'ticklabels')
+
+            axis.set_major_locator(locator)
+            label_setter('a' + sequence)
+
+        show_seq = self.show_sequence
+
+        # allow usage of boolean values
+        if type(show_seq) is bool:
+            show_seq = str(show_seq)
+
+        axes = (
+            ('x', sequences[1].sequence),
+            ('y', sequences[0].sequence)
+        )
+
+        if show_seq == 'True':
+            for axis, sequence in axes:
+                add_sequence_axis(subplot, axis, sequence)
+        elif show_seq == 'False':
             pass
-        elif type(self.show_sequence) is int or self.show_sequence.isdigit():
-            length = int(self.show_sequence)
-            if len(sequences[0].sequence) < length:
-                subplot.yaxis.set_major_locator(ticker.MultipleLocator(1))
-                subplot.set_yticklabels('a' + sequences[0].sequence)
-            if len(sequences[1].sequence) < length:
-                subplot.xaxis.set_major_locator(ticker.MultipleLocator(1))
-                subplot.set_xticklabels('a' + sequences[1].sequence)
+        elif type(show_seq) is int or show_seq.isdigit():
+            length = int(show_seq)
+            for axis, sequence in axes:
+                if len(sequence) < length:
+                    add_sequence_axis(subplot, axis, sequence)
         else:
-            raise Exception(self.show_sequence + " is an incorrect value for show_sequence")
+            raise Exception(show_seq + ' is an incorrect value for show_sequence')
