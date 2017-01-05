@@ -35,7 +35,7 @@ class Plotter(object):
         """
 
         if self.window_size == 1:
-            matrix = self.make_binary_plot(sequences)
+            matrix = self.make_simple_plot(sequences)
         else:
             matrix = self.make_windowed_plot(sequences)
 
@@ -43,18 +43,22 @@ class Plotter(object):
 
         return matrix
 
-    def make_binary_plot(self, sequences):
-        """Creates dotplot matrix for given sequences.
+    def make_simple_plot(self, sequences):
+        """Creates dotplot matrix for given sequences. It is a special,
+        optimized case of `make_windowed_plot`: for `window_size` equal to one.
 
         Args:
             sequences: (Sequence, Sequence):
                 tuple of Sequene objects with sequences to analyse
 
         Returns:
-            A list of lists of ints (representing a matrix)
-                representing dotplot matrix for the sequences:
-                1 in places where corresponding letters agree,
-                0 in places where corresponding letters do not agree.
+            A list of lists of floats or ints (representing a matrix).
+
+            The exact elements in the matrix will vary accordingly to chosen
+            `get_score` function. If the current scoring function has binary
+            values, then the result will have:
+                1 in places where corresponding symbols in sequence agree,
+                0 in places where corresponding symbols do not agree.
 
             For example:
                sequences = ("ABA", "ABC")
@@ -72,13 +76,11 @@ class Plotter(object):
 
         dotmatrix = []
 
-        for row_index, vertical_letter in enumerate(seq1):
+        for vertical_letter in seq1:
             dotmatrix.append([])
             for horizontal_letter in seq2:
-                if horizontal_letter == vertical_letter:
-                    dotmatrix[row_index].append(1)
-                else:
-                    dotmatrix[row_index].append(0)
+                score = self.get_score(vertical_letter, horizontal_letter)
+                dotmatrix[-1].append(score)
 
         return dotmatrix
 
@@ -95,7 +97,6 @@ class Plotter(object):
             return 0
 
     def make_windowed_plot(self, sequences, jump=1):
-
         """Generate matrix of scores using window sliding techinque.
 
         Partial scores for particular sequence elements will be calculated
