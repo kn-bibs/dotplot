@@ -20,6 +20,7 @@ install:
   - Xvfb :1 &
 
 script:
+  - cd dotplot
   - DISPLAY=:1 python3 -m pytest -v
   - DISPLAY=:1 python3 -m pytest -v --cov=.
 

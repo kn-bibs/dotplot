@@ -27,28 +27,24 @@ sudo pip3 install matplotlib
 ### Basic usage
 
 ```bash
-cd dotplot
-```
-
-```bash
-python3 dotplot.py --fasta 1.fa 2.fa
+python3 dotplot --fasta 1.fa 2.fa
 ```
 To use graphical user interface, type: 
 
 ```bash
-./dotplot.py --fasta 1.fa 2.fa --gui
+python3 dotplot --fasta 1.fa 2.fa --gui
 ```
 
 You can also fetch sequences from various sources (at once):
 ```bash
-./dotplot.py --gui --ncbi NP_001009852 --uniprot P03086
+python3 dotplot --gui --ncbi NP_001009852 --uniprot P03086
 ```
 
 #### Advanced options
 
 You can set window size to be used in plot creation:
 ```bash
-./dotplot.py --fasta 1.fa 2.fa --gui --window_size 2
+python3 dotplot --fasta 1.fa 2.fa --gui --window_size 2
 ```
 
 #### Getting help

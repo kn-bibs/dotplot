@@ -1,4 +1,4 @@
-from dotplot import main
+from main import main
 
 
 def test_main():

@@ -241,7 +241,7 @@ class ArgumentParser(object):
 
         # set drawer method to defaults if not set
         if not args.drawer.method:
-            from dotplot import is_matplotlib_available
+            from helpers import is_matplotlib_available
 
             method = 'unicode'
 
