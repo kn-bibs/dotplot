@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 setup(
     name='dotplot',
-    packages=['dotplot'],
+    packages=['dotplot', 'dotplot.gui'],
     version='0.2',
     license='LGPL-3.0',
     description='Small bioinformatic package for dotplot\'s generation (in command line and in GUI)',

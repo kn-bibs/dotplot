@@ -2,10 +2,10 @@
 
 import sys
 
-from argument_parser import ArgumentParser
-from dotplot import Dotplot
-from helpers import is_matplotlib_available
-from helpers import is_pyqt5_available
+from .argument_parser import ArgumentParser
+from .dotplot import Dotplot
+from .helpers import is_matplotlib_available
+from .helpers import is_pyqt5_available
 
 
 # keep app object in global scope to prevent Python's GC from destroying PyQt
@@ -29,7 +29,7 @@ def main(argv):
             print('You need to install PyQt5 to use GUI.')
         else:
             from PyQt5.QtWidgets import QApplication
-            from gui import MainWindow
+            from .gui import MainWindow
 
             global application
 

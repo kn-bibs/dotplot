@@ -1,5 +1,5 @@
-from drawer import Drawer
-from plotter import Plotter
+from .drawer import Drawer
+from .plotter import Plotter
 
 
 class Dotplot(object):

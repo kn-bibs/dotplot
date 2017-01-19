@@ -9,9 +9,9 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QSplitter
-from dotplot import Dotplot
-from sequence import DownloadFailed
-from sequence import Sequence
+from ..dotplot import Dotplot
+from ..sequence import DownloadFailed
+from ..sequence import Sequence
 from .chooser import Chooser
 from .options import OptionPanel
 
@@ -228,7 +228,7 @@ class MainWindow(QMainWindow):
         savebutton.clicked.connect(self.select_save_file_dialog)
 
         if self.use_matplotlib:
-            from figures_plot import MyFigure
+            from ..figures_plot import MyFigure
             self.canvas = MyFigure()
         else:
             from PyQt5.QtGui import QFont

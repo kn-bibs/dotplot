@@ -1,5 +1,5 @@
 """Plotter creates the matrix that is later displayed."""
-from matrices import SimilarityMatrix
+from .matrices import SimilarityMatrix
 
 
 class Plotter(object):

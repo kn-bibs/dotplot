@@ -2,9 +2,9 @@
 Parses arguments and performs basic validation.
 """
 import argparse
-from sequence import Sequence
-from drawer import Drawer
 from collections import defaultdict
+from .sequence import Sequence
+from .drawer import Drawer
 
 
 class NestedNamespace(argparse.Namespace):
@@ -241,7 +241,7 @@ class ArgumentParser(object):
 
         # set drawer method to defaults if not set
         if not args.drawer.method:
-            from helpers import is_matplotlib_available
+            from .helpers import is_matplotlib_available
 
             method = 'unicode'
 
