@@ -1,5 +1,5 @@
-from plotter import Plotter
-from sequence import Sequence
+from dotplot.plotter import Plotter
+from dotplot.sequence import Sequence
 
 
 class DummyNamespace:

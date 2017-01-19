@@ -1,6 +1,6 @@
 import pytest
 import argparse
-from argument_parser import positive_int
+from dotplot.argument_parser import positive_int
 
 
 def test_positive_int():

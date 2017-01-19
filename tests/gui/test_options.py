@@ -1,9 +1,9 @@
-from gui.options import OptionPanel
-from gui.options import WindowSize
-from gui.options import Stringency
-from gui.options import ShowSequence
-from gui.options import Matrix
-from gui.helpers import Option
+from dotplot.gui.options import OptionPanel
+from dotplot.gui.options import WindowSize
+from dotplot.gui.options import Stringency
+from dotplot.gui.options import ShowSequence
+from dotplot.gui.options import Matrix
+from dotplot.gui.helpers import Option
 from copy import copy
 
 

@@ -1,4 +1,4 @@
-from matrices import SimilarityMatrix
+from dotplot.matrices import SimilarityMatrix
 from argparse import Namespace
 
 

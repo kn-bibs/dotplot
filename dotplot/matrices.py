@@ -1,4 +1,5 @@
 """This module works with similarity matrices of aminoacids"""
+import os
 
 
 available_matrices = {
@@ -73,7 +74,11 @@ class SimilarityMatrix:
     @staticmethod
     def read_raw_matrix(filename):
         """This function converts the matrix into a dictionary"""
-        with open(filename) as f:
+        path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            filename
+        )
+        with open(path) as f:
             lines = f.readlines()
             matrix = {}
             # read aminoacids' order from first line and make all the letters
