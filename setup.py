@@ -5,13 +5,13 @@ from setuptools import find_packages
 setup(
     name='dotplot',
     packages=['dotplot', 'dotplot.gui'],
-    version='0.2',
+    version='0.3',
     license='LGPL-3.0',
     description='Small bioinformatic package for dotplot\'s generation (in command line and in GUI)',
     author='kn_bibs',
     author_email='bibs.kn@uw.edu.pl',
     url='https://github.com/kn-bibs/dotplot',
-    download_url='https://github.com/kn-bibs/dotplot/tarball/v0.2-alpha',
+    download_url='https://github.com/kn-bibs/dotplot/tarball/v0.3-alpha',
     keywords=['dotplot', 'bioinformatic', 'gui'],
     classifiers=[
         'Development Status :: 3 - Alpha',
