@@ -11,6 +11,17 @@ Dotplot is a plot used mainly in biology for graphical visualisations of sequenc
 There are many programs that attempt to create dotplots already. Unfortunately most of these programs was created long time ago and written in old versions of Java. This Python3 package will allow new generations of bioinformaticians to generate dotplots much easier.
 
 ## Installation & usage
+
+### Instalation with pip
+
+The easiest way to install this package with all dependencis is to use pip:
+
+```bash
+pip install dotplot
+```
+
+### Manual installation
+
 ```bash
 git clone https://github.com/kn-bibs/dotplot
 ```
@@ -24,27 +35,38 @@ To use matplotlib for drawing, you need to have it installed, e.g. with:
 sudo pip3 install matplotlib
 ```
 
+Note: If you have chosen manual installation, use `python3 dotplot` command to run the program (while in the `dotplot` directory) instead of sole `dotplot`.
+
 ### Basic usage
 
 ```bash
-python3 dotplot --fasta 1.fa 2.fa
+dotplot --fasta 1.fa 2.fa
 ```
 To use graphical user interface, type: 
 
 ```bash
-python3 dotplot --fasta 1.fa 2.fa --gui
+dotplot --fasta 1.fa 2.fa --gui
 ```
 
 You can also fetch sequences from various sources (at once):
 ```bash
-python3 dotplot --gui --ncbi NP_001009852 --uniprot P03086
+dotplot --gui --ncbi NP_001009852 --uniprot P03086
 ```
 
 #### Advanced options
 
 You can set window size to be used in plot creation:
 ```bash
-python3 dotplot --fasta 1.fa 2.fa --gui --window_size 2
+dotplot --fasta 1.fa 2.fa --gui --window_size 2
+```
+Furthermore, you can combine it with stringency:
+```bash
+dotplot --fasta 1.fa 2.fa --gui --window_size 2 --stringency 2
+```
+
+And you can use a similarity matrix to compare aminoacids:
+```bash
+dotplot --fasta 1.fa 2.fa --gui --window_size 2 --stringency 2 --matrix PAM120
 ```
 
 #### Getting help
