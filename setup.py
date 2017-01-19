@@ -1,10 +1,10 @@
-from distutils.core import setup
+from setuptools import setup
 from setuptools import find_packages
 
 
 setup(
     name='dotplot',
-    packages=['dotplot', 'dotplot.gui'],
+    packages=find_packages(),
     version='0.3',
     license='LGPL-3.0',
     description='Small bioinformatic package for dotplot\'s generation (in command line and in GUI)',
