@@ -32,7 +32,7 @@ class Option(QWidget, metaclass=Register):
         # be called in arguments namespace to get or modify targeted argumnet)
         self.target_path = self.target.split('.')
 
-        # will raise ValueError if target is nor accessible
+        # will raise ValueError if target is not accessible
         self._check_target()
 
         # create the GUI for the option widget
