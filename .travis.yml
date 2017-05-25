@@ -6,6 +6,7 @@ python:
   # - 3.3   no PyQt5 binaries available for 3.3 & 3.4
   # - 3.4
   - 3.5
+  - 3.6
 
 install:
   - pip install PyQt5
