@@ -2,12 +2,23 @@ from setuptools import setup
 from setuptools import find_packages
 
 
+description_file = 'README.md'
+
+try:
+    from pypandoc import convert
+    long_description = convert(description_file, 'rst')
+except ImportError:
+    with open(description_file) as f:
+        long_description = f.read()
+
+
 setup(
     name='dotplot',
     packages=find_packages(),
     version='0.4.2',
     license='LGPL-3.0',
     description='Small bioinformatic package for dotplot\'s generation (in command line and in GUI)',
+    long_description=long_description,
     author='kn_bibs',
     author_email='bibs.kn@uw.edu.pl',
     url='https://github.com/kn-bibs/dotplot',
@@ -34,6 +45,6 @@ setup(
     ],
     scripts=['bin/dotplot'],
     package_data={
-        'dotplot': ['dotplot/matrices']
+        'dotplot': ['matrices/*.txt']
     }
 )
