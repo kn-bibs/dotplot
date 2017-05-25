@@ -5,13 +5,13 @@ from setuptools import find_packages
 setup(
     name='dotplot',
     packages=find_packages(),
-    version='0.4.1',
+    version='0.4.2',
     license='LGPL-3.0',
     description='Small bioinformatic package for dotplot\'s generation (in command line and in GUI)',
     author='kn_bibs',
     author_email='bibs.kn@uw.edu.pl',
     url='https://github.com/kn-bibs/dotplot',
-    download_url='https://github.com/kn-bibs/dotplot/tarball/v0.4.1-alpha',
+    download_url='https://github.com/kn-bibs/dotplot/tarball/v0.4.2-alpha',
     keywords=['dotplot', 'bioinformatic', 'gui'],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -25,11 +25,15 @@ setup(
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     install_requires=[
         'PyQt5',
         'matplotlib',
         'requests'
     ],
-    scripts=['bin/dotplot']
+    scripts=['bin/dotplot'],
+    package_data={
+        'dotplot': ['dotplot/matrices']
+    }
 )
