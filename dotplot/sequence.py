@@ -5,7 +5,7 @@ import os
 
 
 class DownloadFailed(Exception):
-    """Generic excpetions used for catching sequence fetching failures."""
+    """Generic exceptions used for catching sequence fetching failures."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -147,7 +147,7 @@ class Sequence(object):
     @staticmethod
     def get_sequence(address, seq_id):
         """
-        Attemtps to download a sequence from given address 3 times,
+        Attempts to download a sequence from given address 3 times,
         raises exception if download fails.
 
         Returns:
@@ -155,7 +155,7 @@ class Sequence(object):
 
         Raises:
             DownloadFailed:
-                if network error occurrs or sequence/server is not available
+                if network error occurs or sequence/server is not available
         """
         ask = False
         i = 0
