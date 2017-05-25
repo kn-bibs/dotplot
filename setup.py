@@ -2,27 +2,30 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-description_file = 'README.md'
-
 try:
     from pypandoc import convert
-    long_description = convert(description_file, 'rst')
+
+    def get_long_description(file_name):
+        return convert(file_name, 'rst', 'md')
+
 except ImportError:
-    with open(description_file) as f:
-        long_description = f.read()
+
+    def get_long_description(file_name):
+        with open(file_name) as f:
+            return f.read()
 
 
 setup(
     name='dotplot',
     packages=find_packages(),
-    version='0.4.3',
+    version='0.4.4',
     license='LGPL-3.0',
     description='Small bioinformatic package for dotplot\'s generation (in command line and in GUI)',
-    long_description=long_description,
+    long_description=get_long_description('README.md'),
     author='kn_bibs',
     author_email='bibs.kn@uw.edu.pl',
     url='https://github.com/kn-bibs/dotplot',
-    download_url='https://github.com/kn-bibs/dotplot/tarball/v0.4.3-alpha',
+    download_url='https://github.com/kn-bibs/dotplot/tarball/v0.4.4-alpha',
     keywords=['dotplot', 'bioinformatic', 'gui'],
     classifiers=[
         'Development Status :: 3 - Alpha',
