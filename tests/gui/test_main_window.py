@@ -28,8 +28,8 @@ def prepare_test_window(qtbot):
 
 def add_test_sequences(window):
 
-    window.sequences[0] = Sequence('test_1', 'ABCD')
-    window.sequences[1] = Sequence('test_2', 'CDBA')
+    window.sequences[0] = Sequence('ABCD', 'test_1')
+    window.sequences[1] = Sequence('CDBA', 'test_2')
 
 
 def test_new_plot(qtbot, mock):
@@ -70,7 +70,7 @@ def test_set_status(qtbot):
 
     window = prepare_test_window(qtbot)
 
-    test_message = 'It is a test'
+    test_message = 'This is a test'
     window.set_status(test_message)
     assert window.statusBar().currentMessage() == test_message
 
@@ -103,3 +103,10 @@ def test_sequence_selector(qtbot, mock):
         file_name
     )
 
+
+def test_save(qtbot, mock):
+    import os.path
+    window = prepare_test_window(qtbot)
+    mock.patch.object(QFileDialog, 'getSaveFileName', return_value=('plot.png', 'PNG file (*.png)'))
+    window.select_save_file_dialog()
+    assert os.path.exists('plot.png')

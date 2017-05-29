@@ -51,10 +51,6 @@ class SequenceSelector(QHBoxLayout):
         self.addWidget(self.current_sequence_indicator)
         self.addLayout(self.btn_box)
 
-    def connect(self):
-        self.select_btn.clicked.connect(self.callback_file)
-        self.more_btn.clicked.connect(self.callback_more)
-
     def select_sequence_dialog(self):
         """Invoke dialog window allowing to choose a sequence file.
 

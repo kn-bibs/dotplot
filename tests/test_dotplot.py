@@ -1,7 +1,9 @@
+from PyQt5.QtWidgets import QApplication
+
 from dotplot.main import main
 
 
-def test_main():
+def test_main(qtbot, mock):
     # simple run test
 
     basic_cmd_sets = (
@@ -14,3 +16,7 @@ def test_main():
 
     for argv in basic_cmd_sets:
         assert main(argv)
+
+    from matplotlib import pyplot
+    mock.patch.object(pyplot, 'show')
+    assert main(['./dotplot.py', '--fasta', '1.fa', '2.fa', '--drawer', 'matplotlib'])
