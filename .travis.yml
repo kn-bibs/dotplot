@@ -11,7 +11,7 @@ python:
 install:
   - pip install PyQt5
   - pip install -r requirements.txt
-  - pip install pytest pytest-cov pytest-qt pytest-logging coveralls requests_mock pytset-mock
+  - pip install pytest pytest-cov pytest-qt pytest-logging coveralls requests_mock pytest-mock
   # PyQt testing fails when there is no display available. Normally,
   # in plain Qt one would use "-platform offscreen" on testing tools
   # although those are not available nor the option to change platform
