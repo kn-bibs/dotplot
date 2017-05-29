@@ -30,6 +30,9 @@ class MainWindow(QMainWindow):
         if self.are_sequences_loaded():
             self.new_plot()
 
+    def set_status(self, text):
+        self.statusBar().showMessage(text)
+
     def are_sequences_loaded(self):
         """Sequences are correctly loaded if both file handles are not empty"""
         return (
@@ -41,7 +44,7 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         """Initialize all GUI elements and show window."""
 
-        self.statusBar().showMessage('Welcome')
+        self.set_status('Welcome')
         self.create_menus()
 
         canvas_box = self.create_canvas()
@@ -82,7 +85,7 @@ class MainWindow(QMainWindow):
             return False
 
         # make new dotplot
-        self.statusBar().showMessage('Creating a plot')
+        self.set_status('Creating a plot')
         dotplot = Dotplot(
             self.sequences,
             self.args.plotter,
@@ -92,7 +95,8 @@ class MainWindow(QMainWindow):
         dotplot.make_plot()
 
         self.display_plot(dotplot)
-        self.statusBar().showMessage('Plot created successfully')
+        self.set_status('Plot created successfully')
+        return True
 
     def select_sequence_dialog(self):
         """Invoke dialog window allowing to choose a sequence file.
@@ -142,18 +146,16 @@ class MainWindow(QMainWindow):
             else 'Not selected'
         )
 
-        def load_sequence(source, value, name):
+        def load_sequence(source_method, name, *source_specific_parameters):
+            """Create and load sequence from given source, using specified parameters."""
             from os.path import basename
-            try:
-                constructor = getattr(Sequence, source)
-                sequence = constructor(value)
-                self.sequences[seq_id - 1] = sequence
-                self.statusBar().showMessage('Sequence loaded successfully')
-                current_sequence_indicator.setText(
-                    '%s (%s)' % (sequence.name, basename(name))
-                )
-            except DownloadFailed as e:
-                self.statusBar().showMessage(e.message)
+            constructor = getattr(Sequence, source_method)
+            sequence = constructor(*source_specific_parameters)
+            self.sequences[seq_id - 1] = sequence
+            self.set_status('Sequence "%s" loaded successfully' % name)
+            current_sequence_indicator.setText(
+                '%s (%s)' % (sequence.name, basename(name))
+            )
 
         def callback_file():
             file_name, file_type = self.select_sequence_dialog()
@@ -164,11 +166,15 @@ class MainWindow(QMainWindow):
             file_handle = open(file_name, 'r')
 
             if file_name.endswith('.fa') or file_name.endswith('.fasta'):
-                load_sequence('from_fasta_file', file_handle, file_name)
+                load_sequence('from_fasta_file', file_name, file_handle)
             elif file_name.endswith('.txt'):
-                load_sequence('from_text_file', file_handle, file_name)
+                load_sequence('from_text_file', file_name, file_handle)
             else:
-                self.statusBar().showMessage('Unknown file extension')
+                try:
+                    extension = file_name.split('.')[1]
+                    self.set_status('Unknown file extension "%s" (of file "%s")' % (extension, file_name))
+                except IndexError:
+                    self.set_status('No file extension detected in "%s" file name' % file_name)
 
             file_handle.close()
 
@@ -177,13 +183,16 @@ class MainWindow(QMainWindow):
             if not result:  # chooser does not guarantee to return a tuple
                 return
             database, sequence_name = result
-            self.statusBar().showMessage('Sequence download in progress')
-            load_sequence(
-                'from_' + database,
-                sequence_name,
-                sequence_name + ' (' + database + ')'
-            )
-            self.statusBar().showMessage('Sequence downloaded successfully')
+            self.set_status('Sequence download in progress')
+            try:
+                load_sequence(
+                    'from_' + database,
+                    sequence_name + ' (' + database + ')',
+                    sequence_name,
+                )
+                self.set_status('Sequence downloaded successfully')
+            except DownloadFailed as e:
+                self.set_status(e.message)
 
         select_btn = QPushButton('Select sequence %s' % seq_id)
         select_btn.clicked.connect(callback_file)
@@ -254,7 +263,7 @@ class MainWindow(QMainWindow):
             statusTip='Exit the application', triggered=self.close
         )
 
-        action_save =  QAction(
+        action_save = QAction(
             'Save plot to file', self, shortcut='Ctrl+S',
             triggered=self.select_save_file_dialog
         )
@@ -285,16 +294,21 @@ class MainWindow(QMainWindow):
             'There are <i>many</i> programs that attempt to create dotplots already. '
             'Unfortunately most of these programs was created long time ago and written '
             'in old versions of Java. <p>This Python3 package will allow new generations '
-            'of bioinformaticians to generate dotplots much easier.</p>')
+            'of bioinformaticians to generate dotplots much easier.</p>'
+        )
 
     def tutorial(self):
         """Show modal window with tutorial."""
         QMessageBox.about(
             self,
             'Tutorial',
-            'Microsatellites (2-5 base pairs) and minisatellies (10-50 base pairs), repeted 10-50 times are highly mutable genome regions of low complexity; they are present in telomeres. '
-            'They are used in researching <s>similarity</s> between genomes. <p> Any longer section suggests a least some local similarity of studied structures. '
-            'If we observe many indel regions, inversions, dotted lines while comparing sequences of two organisms, it suggests that they are related. </p>')
+            'Microsatellites (2-5 base pairs) and minisatellies (10-50 base pairs), repeated 10-50 times are highly '
+            'mutable genome regions of low complexity; they are present in telomeres. '
+            'They are used in researching <s>similarity</s> between genomes.'
+            '<p>Any longer section suggests a least some local similarity of studied structures. '
+            'If we observe many indel regions, inversions, dotted lines while comparing sequences of two organisms, '
+            'it suggests that they are related. </p>'
+        )
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""

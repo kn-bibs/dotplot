@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QPushButton
 from PyQt5.QtWidgets import QRadioButton
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QHBoxLayout
@@ -8,39 +8,68 @@ from PyQt5.QtWidgets import QDialogButtonBox
 from PyQt5.QtWidgets import QLineEdit
 
 
+def reconnect(signal, handler):
+    """Remove existing handlers and connect a new one to given signal"""
+    try:
+        signal.disconnect()
+    except TypeError:
+        pass
+    signal.connect(handler)
+
+
+class DatabaseOption(object):
+
+    def __init__(self, parent, name, example=None):
+        self.name = name
+        self.example = example or ''
+        self.parent = parent
+
+        self.button = QRadioButton(name, parent)
+        self.button.toggled.connect(self.set_hint)
+
+    def set_hint(self):
+        self.parent.id_input.setPlaceholderText('example: ' + self.example)
+        reconnect(self.parent.example_button.clicked, self.load_example)
+
+    def load_example(self):
+        self.parent.id_input.setText(self.example)
+
+
 class Chooser(QDialog):
-    def __init__(self):
+
+    def __init__(self, default_db='ncbi'):
         super().__init__()
 
-        self.ncbi = QRadioButton('NCBI ', self)
-        self.uniprot = QRadioButton('Uniprot', self)
-        self.ensembl = QRadioButton('Ensembl', self)
-        self.ncbi.toggled.connect(self.set_hint)
-        self.uniprot.toggled.connect(self.set_hint)
-        self.ensembl.toggled.connect(self.set_hint)
+        self.id_input = QLineEdit(self)
+        self.id_input.setPlaceholderText('Sequence ID')
+        self.example_button = QPushButton('Load example')
+
+        self.databases = {
+            'ncbi': DatabaseOption(self, 'NCBI', 'NP_001009852'),
+            'uniprot': DatabaseOption(self, 'Uniprot', 'P03086'),
+            'ensembl': DatabaseOption(self, 'Ensembl', 'ENSP00000200691')
+        }
+
+        hbox = QHBoxLayout()
+        for db_option in self.databases.values():
+            button = db_option.button
+            hbox.addWidget(button)
+        hbox.addStretch(1)
 
         label_database = QLabel('Download sequence from a database: ', self)
         self.label_error = QLabel('')
 
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.ncbi)
-        hbox.addWidget(self.uniprot)
-        hbox.addWidget(self.ensembl)
-        hbox.addStretch(1)
-
         give_id = QLabel('Enter sequence ID')
-        self.id_input = QLineEdit(self)
-        self.id_input.setPlaceholderText('Sequence ID')
 
-        self.ncbi.toggle()
+        self.databases[default_db].button.toggle()
         vbox = QVBoxLayout()
         vbox.addWidget(label_database)
 
         vbox.addLayout(hbox)
         vbox.addWidget(give_id)
         vbox.addWidget(self.id_input)
-        #vbox.addWidget(download)
         vbox.addWidget(self.label_error)
+        vbox.addWidget(self.example_button)
         vbox.addStretch(1)
 
         buttons = QDialogButtonBox(
@@ -52,7 +81,6 @@ class Chooser(QDialog):
 
         self.setLayout(vbox)
         self.setWindowTitle('Choose database')
-        #self.show()
 
     def accept(self):
         sequence_id = self.id_input.text()
@@ -65,31 +93,11 @@ class Chooser(QDialog):
         database = self.get_database()
 
         return database, sequence_id
-    """
-        try:
-            return database, sequence_id
-        except UnboundLocalError:
-            return False"""
 
     def get_database(self):
-        if self.ncbi.isChecked():
-            return 'ncbi'
-        elif self.uniprot.isChecked():
-            return 'uniprot'
-        elif self.ensembl.isChecked():
-            return 'ensembl'
-
-    def set_hint(self):
-        placeholders = {
-            'ncbi': 'example: NC_000017.11',
-            'uniprot': 'example: P97929',
-            'ensembl': 'example: ENSG00000157764'
-        }
-        database = self.get_database()
-
-        hint = placeholders[database]
-
-        self.id_input.setPlaceholderText(hint)
+        for name, db_option in self.databases.items():
+            if db_option.button.isChecked():
+                return name
 
     @staticmethod
     def choose():

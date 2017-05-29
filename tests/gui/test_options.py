@@ -1,10 +1,11 @@
-from dotplot.gui.options import OptionPanel
-from dotplot.gui.options import WindowSize
-from dotplot.gui.options import Stringency
-from dotplot.gui.options import ShowSequence
-from dotplot.gui.options import Matrix
-from dotplot.gui.helpers import Option
 from copy import copy
+from dotplot.gui.helpers import Option
+from dotplot.gui.options import Matrix
+from dotplot.gui.options import OptionPanel
+from dotplot.gui.options import ShowSequence
+from dotplot.gui.options import Stringency
+from dotplot.gui.options import WindowSize
+from tests.gui.miscellaneous import DummyNestedNamespace
 
 
 test_args = {
@@ -17,24 +18,6 @@ test_args = {
         'show_sequences': 200
     }
 }
-
-
-class DummyNestedNamespace:
-
-    def __init__(self, data):
-        data = copy(data)
-        for key, value in data.items():
-            if type(value) is dict:
-                data[key] = DummyNestedNamespace(value)
-        self.data = data
-
-    def __getattr__(self, name):
-        namespace = self.data
-        keys = name.split('.')
-        value = namespace[keys[0]]
-        if len(keys) > 1 and keys[1]:
-            return getattr(value, '.'.join(keys[1:]))
-        return value
 
 
 def test_option_panel(qtbot):
