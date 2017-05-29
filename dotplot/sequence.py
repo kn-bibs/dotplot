@@ -113,8 +113,8 @@ class Sequence(object):
         sequence as strings.
         """
 
-        server = "http://rest.ensembl.org"
-        ext = "/sequence/id/" + ensembl_id + "?"
+        server = "https://rest.ensembl.org"
+        ext = "/sequence/id/" + ensembl_id
         address = server + ext
         sequence, name = cls.get_sequence(address, ensembl_id)
         return cls(sequence, name)
@@ -138,9 +138,8 @@ class Sequence(object):
         sequence as strings using Entrez Programming Utilities (E-utilities)
         """
 
-        base = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils'
-        end = '/efetch.fcgi?'
-        address = base + end + 'db=protein&id=' + ncbi_id + '&rettype=fasta'
+        base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?'
+        address = base + 'db=protein&rettype=fasta&id=' + ncbi_id
         sequence, name = cls.get_sequence(address, ncbi_id)
         return cls(sequence, name)
 

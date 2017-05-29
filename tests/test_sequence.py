@@ -51,13 +51,37 @@ def test_download():
             'sp|P03086|AGNO_POVJC Agnoprotein OS=JC polyomavirus PE=1 SV=1',
             'MVLRQLSRKASVKVSKTWSGTKKRAQRILIFLLEFLLDFCTGEDSVDGKKRQRHSGLTEQTYSALPEPKAT',
             Sequence.from_uniprot
+        ),
+        test_datum(
+            'NP_001009852',
+            'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&rettype=fasta&id=NP_001009852',
+            (
+                '>NP_001009852.1 bladder cancer-associated protein [Felis catus]\n'
+                'MYCLQWLLPVLLIPKPLNPALWFSHSMFMGFYLLSFLLERKPCTICALVFLAALFLICYSCWGNCFLYHC\n'
+                'SDSPLPESAHDPGVVGT'
+            ),
+            'NP_001009852.1 bladder cancer-associated protein [Felis catus]',
+            'MYCLQWLLPVLLIPKPLNPALWFSHSMFMGFYLLSFLLERKPCTICALVFLAALFLICYSCWGNCFLYHCSDSPLPESAHDPGVVGT',
+            Sequence.from_ncbi
+        ),
+        test_datum(
+            'ENSP00000200691',
+            'https://rest.ensembl.org/sequence/id/ENSP00000200691',
+            (
+                '>ENSP00000200691\n'
+                'MDPETCPCPSGGSCTCADSCKCEGCKCTSCKKSCCSCCPAECEKCAKDCVCKGGEAAEAE\n'
+                'AEKCSCCQ'
+            ),
+            'ENSP00000200691',
+            'MDPETCPCPSGGSCTCADSCKCEGCKCTSCKKSCCSCCPAECEKCAKDCVCKGGEAAEAEAEKCSCCQ',
+            Sequence.from_ensembl
         )
     ]
 
     with requests_mock.mock(real_http=False) as mocked_requests:
         for data in test_data:
             mocked_requests.register_uri('GET', data.url, text=data.response)
-            sequence = Sequence.from_uniprot(data.sequence_id)
+            sequence = data.constructor(data.sequence_id)
             assert sequence.name == data.sequence_name
             assert sequence.sequence == data.sequence
 
@@ -67,5 +91,6 @@ def test_download():
             'http://www.uniprot.org/uniprot/P00000.fasta',
             status_code=404
         )
-        with raises(DownloadFailed):
+        with raises(DownloadFailed) as exception:
             Sequence.from_uniprot('P00000')
+        assert exception.value.message == 'After 3 attempts, download of P00000 sequence failed.'
