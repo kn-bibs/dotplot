@@ -1,21 +1,11 @@
 from collections import namedtuple
-from tempfile import NamedTemporaryFile
+
 import requests_mock
 from pytest import raises
-from dotplot.sequence import Sequence
+
 from dotplot.sequence import DownloadFailed
-
-
-def create_named_temp_file(data=''):
-    temporary_file = NamedTemporaryFile(mode='w', delete=False)
-
-    temporary_file.close()
-    name = temporary_file.name
-
-    with open(name, 'w') as f:
-        f.write(data)
-
-    return name
+from dotplot.sequence import Sequence
+from tests.miscellaneous import create_named_temp_file
 
 
 def test_load():

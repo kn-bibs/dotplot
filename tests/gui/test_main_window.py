@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
-from dotplot.gui.main_window import MainWindow
-from tests.gui.miscellaneous import DummyNestedNamespace
-
+from dotplot.gui.chooser import Chooser
+from dotplot.gui.main_window import MainWindow, SequenceSelector
+from dotplot.sequence import Sequence
+from tests.miscellaneous import DummyNestedNamespace, create_named_temp_file
 
 test_args = {
     'plotter': {
@@ -14,7 +15,7 @@ test_args = {
         'show_sequences': 200,
         'method': 'matplotlib'
     },
-    'parsed_sequences': []
+    'parsed_sequences': [None, None]
 }
 
 
@@ -25,6 +26,12 @@ def prepare_test_window(qtbot):
     return window
 
 
+def add_test_sequences(window):
+
+    window.sequences[0] = Sequence('test_1', 'ABCD')
+    window.sequences[1] = Sequence('test_2', 'CDBA')
+
+
 def test_new_plot(qtbot, mock):
     mock.patch.object(QMessageBox, 'information')
     window = prepare_test_window(qtbot)
@@ -32,6 +39,11 @@ def test_new_plot(qtbot, mock):
     # at the beginning when we have no sequences, the plot should not be created
     success = window.new_plot()
     assert not success
+
+    add_test_sequences(window)
+
+    success = window.new_plot()
+    assert success
 
 
 def test_about(qtbot, mock):
@@ -51,7 +63,7 @@ def test_tutorial(qtbot, mock):
 def test_sequences_load(qtbot):
 
     window = prepare_test_window(qtbot)
-    assert window.are_sequences_loaded() is False
+    assert not window.are_sequences_loaded()
 
 
 def test_set_status(qtbot):
@@ -61,3 +73,33 @@ def test_set_status(qtbot):
     test_message = 'It is a test'
     window.set_status(test_message)
     assert window.statusBar().currentMessage() == test_message
+
+
+def test_sequence_selector(qtbot, mock):
+
+    window = prepare_test_window(qtbot)
+    selector = SequenceSelector(window, 1)
+
+    mock.patch.object(Chooser, 'choose', return_value=('ncbi', 'NP_001009852'))
+
+    selector.callback_more()
+
+    assert window.sequences[0].name == 'NP_001009852.1 bladder cancer-associated protein [Felis catus]'
+
+    mock.patch.object(QFileDialog, 'getOpenFileName', return_value=('1.fa', 'txt'))
+
+    selector.callback_file()
+    assert window.sequences[0].name == 'Name of sequence 1'
+    assert window.sequences[0].sequence == 'AGTTCTAACGTAAAA'
+
+    file_name = create_named_temp_file(suffix='.xxx')
+
+    mock.patch.object(QFileDialog, 'getOpenFileName', return_value=(file_name, 'txt'))
+    selector.callback_file()
+
+    assert window.statusBar().currentMessage() == (
+        'Unknown file extension "xxx" (of file "%s")'
+        %
+        file_name
+    )
+

@@ -1,12 +1,12 @@
 from copy import copy
+
 from dotplot.gui.helpers import Option
 from dotplot.gui.options import Matrix
 from dotplot.gui.options import OptionPanel
 from dotplot.gui.options import ShowSequence
 from dotplot.gui.options import Stringency
 from dotplot.gui.options import WindowSize
-from tests.gui.miscellaneous import DummyNestedNamespace
-
+from tests.miscellaneous import DummyNestedNamespace
 
 test_args = {
     'plotter': {
