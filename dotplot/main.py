@@ -40,8 +40,7 @@ def main(argv):
             main_window = MainWindow(args)
 
             # after releasing lock by MainWindow, quit gracefully
-            sys.exit(application.exec())
-
+            return application.exec()
     else:
         dotplot = Dotplot(args.parsed_sequences, args.plotter, args.drawer)
         dotplot.make_plot()
@@ -49,6 +48,7 @@ def main(argv):
         if args.drawer.method == 'matplotlib':
             if not is_matplotlib_available():
                 print('You need to install matplotlib to use it.')
+                return False
             else:
                 # ORDER MATTERS here. And one cannot just merge these imports.
                 import matplotlib
@@ -66,4 +66,5 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    status = main(sys.argv)
+    sys.exit(status)

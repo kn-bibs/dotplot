@@ -16,6 +16,115 @@ from .chooser import Chooser
 from .options import OptionPanel
 
 
+class SequenceSelector(QHBoxLayout):
+
+    def __init__(self, window, seq_id, current_sequence_name=None):
+        """Creates and handles widgets for a file selection."""
+        super().__init__()
+        from PyQt5.QtWidgets import QToolButton
+
+        self.window = window
+        self.seq_id = seq_id
+
+        if not current_sequence_name and len(self.window.sequences) >= seq_id:
+            sequence = self.window.sequences[seq_id - 1]
+            if sequence:
+                current_sequence_name = self.window.sequences[seq_id - 1].name
+
+        self.current_sequence_indicator = QLabel(window)
+        self.current_sequence_indicator.setText(
+            current_sequence_name or 'Not selected'
+        )
+        self.select_btn = QPushButton('Select sequence %s' % seq_id)
+        self.select_btn.clicked.connect(self.callback_file)
+
+        self.more_btn = QToolButton()
+        self.more_btn.setArrowType(Qt.DownArrow)
+        self.more_btn.clicked.connect(self.callback_more)
+
+        self.btn_box = QHBoxLayout()
+        self.btn_box.setContentsMargins(0, 0, 0, 0)
+        self.btn_box.setSpacing(0)
+        self.btn_box.addWidget(self.select_btn)
+        self.btn_box.addWidget(self.more_btn)
+
+        self.addWidget(self.current_sequence_indicator)
+        self.addLayout(self.btn_box)
+
+    def select_sequence_dialog(self):
+        """Invoke dialog window allowing to choose a sequence file.
+
+        A tuple (file_name, file_type) will be returned.
+        If nothing was selected the tuple will be have two empty strings.
+        """
+        selected_file_data = QFileDialog.getOpenFileName(
+            self.window,
+            'Open file',
+            '',  # use the last (or default) directory. It HAS to be str
+            'Fasta files (*.fa *.fasta);;Plain text file (*.txt);;All files (*)',
+            None,
+            QFileDialog.DontUseNativeDialog
+        )
+
+        return selected_file_data
+
+    def load_sequence(self, source_method, name, *source_specific_parameters):
+        """Create and load sequence from given source, using specified parameters."""
+        from os.path import basename
+        constructor = getattr(Sequence, source_method)
+        sequence = constructor(*source_specific_parameters)
+        self.window.sequences[self.seq_id - 1] = sequence
+        self.window.set_status('Sequence "%s" loaded successfully' % name)
+        self.current_sequence_indicator.setText(
+            '%s (%s)' % (sequence.name, basename(name))
+        )
+        return True
+
+    def callback_file(self):
+        file_name, file_type = self.select_sequence_dialog()
+
+        if not file_name:
+            return
+
+        with open(file_name, 'r') as file_handle:
+
+            if file_name.endswith('.fa') or file_name.endswith('.fasta'):
+                return self.load_sequence('from_fasta_file', file_name, file_handle)
+            elif file_name.endswith('.txt'):
+                return self.load_sequence('from_text_file', file_name, file_handle)
+            else:
+                try:
+                    extension = file_name.split('.')[1]
+                    self.window.set_status(
+                        'Unknown file extension "%s" (of file "%s")'
+                        %
+                        (extension, file_name)
+                    )
+                except IndexError:
+                    self.window.set_status(
+                        'No file extension detected in "%s" file name'
+                        %
+                        file_name
+                    )
+                return False
+
+    def callback_more(self):
+        result = Chooser.choose()
+        if not result:  # chooser does not guarantee to return a tuple
+            return
+        database, sequence_name = result
+        self.window.set_status('Sequence download in progress')
+        try:
+            self.load_sequence(
+                'from_' + database,
+                sequence_name + ' (' + database + ')',
+                sequence_name,
+                )
+            self.window.set_status('Sequence downloaded successfully')
+        except DownloadFailed as e:
+            self.window.set_status(e.message)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, args):
         super().__init__()
@@ -30,6 +139,9 @@ class MainWindow(QMainWindow):
         if self.are_sequences_loaded():
             self.new_plot()
 
+    def set_status(self, text):
+        self.statusBar().showMessage(text)
+
     def are_sequences_loaded(self):
         """Sequences are correctly loaded if both file handles are not empty"""
         return (
@@ -41,7 +153,7 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         """Initialize all GUI elements and show window."""
 
-        self.statusBar().showMessage('Welcome')
+        self.set_status('Welcome')
         self.create_menus()
 
         canvas_box = self.create_canvas()
@@ -82,7 +194,7 @@ class MainWindow(QMainWindow):
             return False
 
         # make new dotplot
-        self.statusBar().showMessage('Creating a plot')
+        self.set_status('Creating a plot')
         dotplot = Dotplot(
             self.sequences,
             self.args.plotter,
@@ -92,24 +204,8 @@ class MainWindow(QMainWindow):
         dotplot.make_plot()
 
         self.display_plot(dotplot)
-        self.statusBar().showMessage('Plot created successfully')
-
-    def select_sequence_dialog(self):
-        """Invoke dialog window allowing to choose a sequence file.
-
-        A tuple (file_name, file_type) will be returned.
-        If nothing was selected the tuple will be have two empty strings.
-        """
-        selected_file_data = QFileDialog.getOpenFileName(
-            self,
-            'Open file',
-            '',  # use the last (or default) directory. It HAS to be str
-            'Fasta files (*.fa *.fasta);;Plain text file (*.txt);;All files (*)',
-            None,
-            QFileDialog.DontUseNativeDialog
-        )
-
-        return selected_file_data
+        self.set_status('Plot created successfully')
+        return True
 
     def select_save_file_dialog(self):
         """Supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz."""
@@ -131,83 +227,10 @@ class MainWindow(QMainWindow):
             file_name += extension
         self.canvas.save_file(file_name)
 
-    def create_sequence_selector(self, seq_id):
-        """Creates and handles widgets for a file selection."""
-        from PyQt5.QtWidgets import QToolButton
-
-        current_sequence_indicator = QLabel(self)
-        current_sequence_indicator.setText(
-            self.sequences[seq_id - 1].name
-            if len(self.sequences) >= seq_id
-            else 'Not selected'
-        )
-
-        def load_sequence(source, value, name):
-            from os.path import basename
-            try:
-                constructor = getattr(Sequence, source)
-                sequence = constructor(value)
-                self.sequences[seq_id - 1] = sequence
-                self.statusBar().showMessage('Sequence loaded successfully')
-                current_sequence_indicator.setText(
-                    '%s (%s)' % (sequence.name, basename(name))
-                )
-            except DownloadFailed as e:
-                self.statusBar().showMessage(e.message)
-
-        def callback_file():
-            file_name, file_type = self.select_sequence_dialog()
-
-            if not file_name:
-                return
-
-            file_handle = open(file_name, 'r')
-
-            if file_name.endswith('.fa') or file_name.endswith('.fasta'):
-                load_sequence('from_fasta_file', file_handle, file_name)
-            elif file_name.endswith('.txt'):
-                load_sequence('from_text_file', file_handle, file_name)
-            else:
-                self.statusBar().showMessage('Unknown file extension')
-
-            file_handle.close()
-
-        def callback_more():
-            result = Chooser.choose()
-            if not result:  # chooser does not guarantee to return a tuple
-                return
-            database, sequence_name = result
-            self.statusBar().showMessage('Sequence download in progress')
-            load_sequence(
-                'from_' + database,
-                sequence_name,
-                sequence_name + ' (' + database + ')'
-            )
-            self.statusBar().showMessage('Sequence downloaded successfully')
-
-        select_btn = QPushButton('Select sequence %s' % seq_id)
-        select_btn.clicked.connect(callback_file)
-
-        more_btn = QToolButton()
-        more_btn.setArrowType(Qt.DownArrow)
-        more_btn.clicked.connect(callback_more)
-
-        btn_box = QHBoxLayout()
-        btn_box.setContentsMargins(0, 0, 0, 0)
-        btn_box.setSpacing(0)
-        btn_box.addWidget(select_btn)
-        btn_box.addWidget(more_btn)
-
-        hbox = QHBoxLayout()
-        hbox.addWidget(current_sequence_indicator)
-        hbox.addLayout(btn_box)
-
-        return hbox
-
     def create_sequence_form(self):
         """Create whole panel for sequence selection."""
-        sequence_1_selector = self.create_sequence_selector(1)
-        sequence_2_selector = self.create_sequence_selector(2)
+        sequence_1_selector = SequenceSelector(self, 1)
+        sequence_2_selector = SequenceSelector(self, 2)
         plot_button = QPushButton('Plot!')
         plot_button.clicked.connect(self.new_plot)
 
@@ -254,7 +277,7 @@ class MainWindow(QMainWindow):
             statusTip='Exit the application', triggered=self.close
         )
 
-        action_save =  QAction(
+        action_save = QAction(
             'Save plot to file', self, shortcut='Ctrl+S',
             triggered=self.select_save_file_dialog
         )
@@ -285,16 +308,21 @@ class MainWindow(QMainWindow):
             'There are <i>many</i> programs that attempt to create dotplots already. '
             'Unfortunately most of these programs was created long time ago and written '
             'in old versions of Java. <p>This Python3 package will allow new generations '
-            'of bioinformaticians to generate dotplots much easier.</p>')
+            'of bioinformaticians to generate dotplots much easier.</p>'
+        )
 
     def tutorial(self):
         """Show modal window with tutorial."""
         QMessageBox.about(
             self,
             'Tutorial',
-            'Microsatellites (2-5 base pairs) and minisatellies (10-50 base pairs), repeted 10-50 times are highly mutable genome regions of low complexity; they are present in telomeres. '
-            'They are used in researching <s>similarity</s> between genomes. <p> Any longer section suggests a least some local similarity of studied structures. '
-            'If we observe many indel regions, inversions, dotted lines while comparing sequences of two organisms, it suggests that they are related. </p>')
+            'Microsatellites (2-5 base pairs) and minisatellies (10-50 base pairs), repeated 10-50 times are highly '
+            'mutable genome regions of low complexity; they are present in telomeres. '
+            'They are used in researching <s>similarity</s> between genomes.'
+            '<p>Any longer section suggests a least some local similarity of studied structures. '
+            'If we observe many indel regions, inversions, dotted lines while comparing sequences of two organisms, '
+            'it suggests that they are related. </p>'
+        )
 
     def display_plot(self, dotplot):
         """Display provided plot from given dotplot instance."""
