@@ -4,7 +4,7 @@
 
 ## Idea
 
-Dotplot is a plot used mainly in biology for graphical visualisations of sequences' similarity. [Read more on Wikipedia] (https://en.wikipedia.org/wiki/Dot_plot_%28bioinformatics%29).
+Dotplot is a plot used mainly in biology for graphical visualisations of sequences' similarity. [Read more on Wikipedia](https://en.wikipedia.org/wiki/Dot_plot_%28bioinformatics%29).
 
 ## Why to create a new package?
 
